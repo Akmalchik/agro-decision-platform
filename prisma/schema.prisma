@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Plot {
+  id              String                                  @id @default(uuid()) @db.Uuid
+  cadastralNumber String                                  @unique @map("cadastral_number")
+  farmName        String                                  @map("farm_name")
+  owner           String
+  area            Decimal                                 @db.Decimal(12, 2)
+  geometry        Unsupported("geometry(Geometry, 4326)")
+  specialization  String?
+  createdAt       DateTime                                @default(now()) @map("created_at")
+  soilProfile     SoilProfile?
+  recommendations Recommendation[]
+
+  @@index([farmName])
+  @@map("plots")
+}
+
+model SoilProfile {
+  id      String   @id @default(uuid()) @db.Uuid
+  plotId  String   @unique @map("plot_id") @db.Uuid
+  bonitet Decimal? @db.Decimal(5, 2)
+  plot    Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+
+  @@map("soil_profiles")
+}
+
+model Crop {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String              @unique
+  category           String
+  productionBalances ProductionBalance[]
+  recommendations    Recommendation[]
+
+  @@index([category])
+  @@map("crops")
+}
+
+model ProductionBalance {
+  id          String  @id @default(uuid()) @db.Uuid
+  cropId      String  @map("crop_id") @db.Uuid
+  production  Decimal @db.Decimal(14, 2)
+  consumption Decimal @db.Decimal(14, 2)
+  selfSupply  Decimal @map("self_supply") @db.Decimal(7, 2)
+  deficit     Decimal @db.Decimal(14, 2)
+  surplus     Decimal @db.Decimal(14, 2)
+  crop        Crop    @relation(fields: [cropId], references: [id], onDelete: Restrict)
+
+  @@index([cropId])
+  @@map("production_balances")
+}
+
+model Recommendation {
+  id          String  @id @default(uuid()) @db.Uuid
+  plotId      String  @map("plot_id") @db.Uuid
+  cropId      String  @map("crop_id") @db.Uuid
+  score       Decimal @db.Decimal(5, 2)
+  explanation String
+  plot        Plot    @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  crop        Crop    @relation(fields: [cropId], references: [id], onDelete: Restrict)
+
+  @@unique([plotId, cropId])
+  @@index([cropId])
+  @@map("recommendations")
+}

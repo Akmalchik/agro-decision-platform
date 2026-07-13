@@ -1,0 +1,12 @@
+import type { SoilProfile } from "@/modules/soil/domain/soil-profile";
+
+export type Plot = {
+  id: string;
+  cadastralNumber: string;
+  farmName: string;
+  owner: string;
+  area: string;
+  specialization: string | null;
+  createdAt: Date;
+  soilProfile: SoilProfile | null;
+};
