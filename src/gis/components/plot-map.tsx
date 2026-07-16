@@ -33,6 +33,9 @@ const SELECTED_STYLE: PathOptions = {
 export function PlotMap({ dataset }: { dataset: PlotMapDataset }) {
   const [selectedPlot, setSelectedPlot] = useState<PlotMapProperties | null>(null);
   const { featureCollection, viewport } = dataset;
+
+  if (!viewport) return null;
+
   const bounds: [[number, number], [number, number]] = [viewport.southWest, viewport.northEast];
 
   const isPlotFeature = (feature: Feature): feature is Feature<Polygon, PlotMapProperties> =>

@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgis/postgis:17-3.5
+    image: imresamu/postgis:17-3.5.4-alpine3.23
     environment:
       POSTGRES_DB: agro
       POSTGRES_USER: agro
