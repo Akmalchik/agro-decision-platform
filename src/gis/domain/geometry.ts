@@ -1,11 +1,4 @@
-import type { FeatureCollection, Geometry, Polygon } from "geojson";
-
-export type GeoJsonGeometry = Geometry;
-
-export type PlotGeometry = {
-  plotId: string;
-  geometry: GeoJsonGeometry;
-};
+import type { FeatureCollection, Polygon } from "geojson";
 
 export type PlotMapProperties = {
   plotId: string;
@@ -25,6 +18,6 @@ export type MapViewport = {
 
 export type PlotMapDataset = {
   featureCollection: PlotFeatureCollection;
-  viewport: MapViewport;
+  viewport: MapViewport | null;
   srid: 4326;
 };
