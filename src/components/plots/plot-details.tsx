@@ -1,4 +1,6 @@
-import { formatArea } from "@/utils/format";
+import { intlLocales, type Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/types";
+import { formatNumber } from "@/utils/format";
 
 export type PlotDetailsData = {
   cadastralNumber: string;
@@ -8,13 +10,13 @@ export type PlotDetailsData = {
   specialization: string | null;
 };
 
-export function PlotDetails({ plot }: { plot: PlotDetailsData }) {
+export function PlotDetails({ plot, locale, dictionary }: { plot: PlotDetailsData; locale: Locale; dictionary: Dictionary }) {
   const rows = [
-    ["Кадастровый номер", plot.cadastralNumber],
-    ["Фермерское хозяйство", plot.farmName],
-    ["Площадь", formatArea(plot.area)],
-    ["Бонитет", plot.bonitet ? `${plot.bonitet} баллов` : "Не указан"],
-    ["Специализация", plot.specialization ?? "Не указана"],
+    [dictionary.plot.cadastralNumber, plot.cadastralNumber],
+    [dictionary.plot.farmName, plot.farmName],
+    [dictionary.plot.area, `${formatNumber(plot.area, intlLocales[locale])} ${dictionary.units.hectare}`],
+    [dictionary.plot.bonitet, plot.bonitet ? `${formatNumber(plot.bonitet, intlLocales[locale])} ${dictionary.units.points}` : dictionary.empty.notSpecified],
+    [dictionary.plot.specialization, plot.specialization ?? dictionary.empty.notSpecifiedFeminine],
   ];
 
   return (

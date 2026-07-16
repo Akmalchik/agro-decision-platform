@@ -4,10 +4,12 @@ import type { Feature, Polygon } from "geojson";
 import { Path } from "leaflet";
 import type { Layer, LeafletMouseEvent, PathOptions } from "leaflet";
 import { useState } from "react";
-import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
+import { GeoJSON, MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { MapPlotCard } from "@/components/map/map-plot-card";
 import type { PlotMapDataset, PlotMapProperties } from "@/gis/domain/geometry";
 import { plotMapPropertiesSchema } from "@/gis/schemas/plot-feature-collection.schema";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/types";
 
 const DEFAULT_STYLE: PathOptions = {
   color: "#246b3c",
@@ -30,7 +32,7 @@ const SELECTED_STYLE: PathOptions = {
   weight: 4,
 };
 
-export function PlotMap({ dataset }: { dataset: PlotMapDataset }) {
+export function PlotMap({ dataset, locale, dictionary }: { dataset: PlotMapDataset; locale: Locale; dictionary: Dictionary }) {
   const [selectedPlot, setSelectedPlot] = useState<PlotMapProperties | null>(null);
   const { featureCollection, viewport } = dataset;
 
@@ -64,7 +66,8 @@ export function PlotMap({ dataset }: { dataset: PlotMapDataset }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-      <MapContainer bounds={bounds} boundsOptions={{ padding: [32, 32] }} className="h-[560px] w-full" scrollWheelZoom>
+      <MapContainer bounds={bounds} boundsOptions={{ padding: [32, 32] }} className="h-[560px] w-full" scrollWheelZoom zoomControl={false}>
+        <ZoomControl zoomInTitle={dictionary.map.zoomIn} zoomOutTitle={dictionary.map.zoomOut} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -76,7 +79,7 @@ export function PlotMap({ dataset }: { dataset: PlotMapDataset }) {
           onEachFeature={attachInteraction}
         />
       </MapContainer>
-      {selectedPlot ? <MapPlotCard plot={selectedPlot} /> : null}
+      {selectedPlot ? <MapPlotCard plot={selectedPlot} locale={locale} dictionary={dictionary} /> : null}
     </div>
   );
 }

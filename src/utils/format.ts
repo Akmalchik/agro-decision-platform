@@ -1,3 +1,7 @@
-export function formatArea(area: number | string): string {
-  return `${new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(Number(area))} га`;
+export function formatNumber(value: number | string, locale: string): string {
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(Number(value));
+}
+
+export function formatDate(value: Date | string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(value));
 }

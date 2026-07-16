@@ -1,0 +1,51 @@
+import type { Dictionary } from "@/i18n/types";
+
+export const uzCyrl = {
+  metadata: { title: "Smart Ekin", description: "Ўзбекистон қишлоқ хўжалиги учун қарорларни қўллаб-қувватлаш платформаси" },
+  languageNames: { "uz-Latn": "O‘zbekcha", "uz-Cyrl": "Ўзбекча", ru: "Русский" },
+  navigation: { home: "Бош саҳифа", map: "Харита", ariaLabel: "Асосий навигация", language: "Тил" },
+  home: {
+    eyebrow: "Ўзбекистон Республикаси",
+    title: "Қишлоқ хўжалигида қарорларни қўллаб-қувватлаш платформаси",
+    description: "Қишлоқ хўжалиги ер участкалари ва фазовий маълумотлар билан ишлаш учун ягона асос.",
+    mapTitle: "Ер участкалари харитаси",
+    mapDescription: "Харита модули кадастр маълумотларини кейинчалик улаш учун тайёрланган.",
+    openMap: "Харитани очиш",
+  },
+  map: {
+    title: "Қишлоқ хўжалиги ер участкалари харитаси",
+    description: "Маълумотлар PostgreSQL/PostGIS базасидан юкланади.",
+    databaseDescription: "PostgreSQL/PostGIS маълумотлари EPSG:4326 координаталар тизимида.",
+    selectedPlot: "Танланган ер участкаси",
+    zoomIn: "Яқинлаштириш",
+    zoomOut: "Узоқлаштириш",
+  },
+  plot: {
+    title: "Ер участкаси",
+    identifier: "Идентификатор",
+    cadastralNumber: "Кадастр рақами",
+    farmName: "Фермер хўжалиги",
+    area: "Майдони",
+    bonitet: "Бонитет",
+    waterSupply: "Сув таъминоти",
+    previousCrop: "Олдинги экин",
+    specialization: "Ихтисослашуви",
+  },
+  buttons: { details: "Батафсил", backToMap: "Харитага қайтиш" },
+  loading: { map: "Харита юкланмоқда" },
+  empty: {
+    title: "Ер участкалари ҳали қўшилмаган",
+    description: "Маълумотлар базасида кўрсатиш учун ер участкалари йўқ.",
+    notSpecified: "Кўрсатилмаган",
+    notSpecifiedFeminine: "Кўрсатилмаган",
+  },
+  databaseError: {
+    mapTitle: "Харита вақтинча ишламаяпти",
+    plotTitle: "Маълумотлар вақтинча мавжуд эмас",
+    mapDescription: "Маълумотлар базасига уланиб бўлмади. PostgreSQL/PostGIS ишга туширилганини текшириб, қайта уриниб кўринг.",
+    plotDescription: "Маълумотлар базасига уланиб бўлмади. PostgreSQL/PostGIS ҳолатини текшириб, қайта уриниб кўринг.",
+  },
+  notFound: { title: "Саҳифа топилмади", description: "Сўралган саҳифа мавжуд эмас ёки кўчирилган.", backHome: "Бош саҳифага қайтиш" },
+  units: { hectare: "га", points: "балл" },
+  plotStatuses: { active: "Фаол", inactive: "Фаол эмас", archived: "Архивланган" },
+} satisfies Dictionary;

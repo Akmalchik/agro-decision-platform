@@ -1,0 +1,51 @@
+import type { Dictionary } from "@/i18n/types";
+
+export const ru = {
+  metadata: { title: "Smart Ekin", description: "Платформа поддержки решений для сельского хозяйства Узбекистана" },
+  languageNames: { "uz-Latn": "O‘zbekcha", "uz-Cyrl": "Ўзбекча", ru: "Русский" },
+  navigation: { home: "Главная", map: "Карта", ariaLabel: "Основная навигация", language: "Язык" },
+  home: {
+    eyebrow: "Республика Узбекистан",
+    title: "Платформа поддержки решений в сельском хозяйстве",
+    description: "Единая основа для работы с сельскохозяйственными участками и пространственными данными.",
+    mapTitle: "Карта участков",
+    mapDescription: "Картографический модуль подготовлен к дальнейшему подключению кадастровых данных.",
+    openMap: "Открыть карту",
+  },
+  map: {
+    title: "Карта сельскохозяйственных участков",
+    description: "Данные загружаются из PostgreSQL/PostGIS.",
+    databaseDescription: "Данные PostgreSQL/PostGIS в системе координат EPSG:4326.",
+    selectedPlot: "Выбранный участок",
+    zoomIn: "Приблизить",
+    zoomOut: "Отдалить",
+  },
+  plot: {
+    title: "Земельный участок",
+    identifier: "Идентификатор",
+    cadastralNumber: "Кадастровый номер",
+    farmName: "Фермерское хозяйство",
+    area: "Площадь",
+    bonitet: "Бонитет",
+    waterSupply: "Водообеспеченность",
+    previousCrop: "Предыдущая культура",
+    specialization: "Специализация",
+  },
+  buttons: { details: "Подробнее", backToMap: "Вернуться к карте" },
+  loading: { map: "Загрузка карты" },
+  empty: {
+    title: "Участки пока не добавлены",
+    description: "В базе данных нет земельных участков для отображения.",
+    notSpecified: "Не указан",
+    notSpecifiedFeminine: "Не указана",
+  },
+  databaseError: {
+    mapTitle: "Карта временно недоступна",
+    plotTitle: "Данные временно недоступны",
+    mapDescription: "Не удалось подключиться к базе данных. Проверьте, что PostgreSQL/PostGIS запущен, и повторите попытку.",
+    plotDescription: "Не удалось подключиться к базе данных. Проверьте PostgreSQL/PostGIS и повторите попытку.",
+  },
+  notFound: { title: "Страница не найдена", description: "Запрошенная страница не существует или была перемещена.", backHome: "Вернуться на главную" },
+  units: { hectare: "га", points: "баллов" },
+  plotStatuses: { active: "Активный", inactive: "Неактивный", archived: "Архивный" },
+} satisfies Dictionary;

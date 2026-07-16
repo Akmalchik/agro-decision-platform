@@ -1,0 +1,51 @@
+import type { Dictionary } from "@/i18n/types";
+
+export const uzLatn = {
+  metadata: { title: "Smart Ekin", description: "O‘zbekiston qishloq xo‘jaligi uchun qarorlarni qo‘llab-quvvatlash platformasi" },
+  languageNames: { "uz-Latn": "O‘zbekcha", "uz-Cyrl": "Ўзбекча", ru: "Русский" },
+  navigation: { home: "Bosh sahifa", map: "Xarita", ariaLabel: "Asosiy navigatsiya", language: "Til" },
+  home: {
+    eyebrow: "O‘zbekiston Respublikasi",
+    title: "Qishloq xo‘jaligida qarorlarni qo‘llab-quvvatlash platformasi",
+    description: "Qishloq xo‘jaligi yer uchastkalari va fazoviy ma’lumotlar bilan ishlash uchun yagona asos.",
+    mapTitle: "Yer uchastkalari xaritasi",
+    mapDescription: "Xarita moduli kadastr ma’lumotlarini keyinchalik ulash uchun tayyorlangan.",
+    openMap: "Xaritani ochish",
+  },
+  map: {
+    title: "Qishloq xo‘jaligi yer uchastkalari xaritasi",
+    description: "Ma’lumotlar PostgreSQL/PostGIS bazasidan yuklanadi.",
+    databaseDescription: "PostgreSQL/PostGIS ma’lumotlari EPSG:4326 koordinatalar tizimida.",
+    selectedPlot: "Tanlangan yer uchastkasi",
+    zoomIn: "Yaqinlashtirish",
+    zoomOut: "Uzoqlashtirish",
+  },
+  plot: {
+    title: "Yer uchastkasi",
+    identifier: "Identifikator",
+    cadastralNumber: "Kadastr raqami",
+    farmName: "Fermer xo‘jaligi",
+    area: "Maydoni",
+    bonitet: "Bonitet",
+    waterSupply: "Suv ta’minoti",
+    previousCrop: "Oldingi ekin",
+    specialization: "Ixtisoslashuvi",
+  },
+  buttons: { details: "Batafsil", backToMap: "Xaritaga qaytish" },
+  loading: { map: "Xarita yuklanmoqda" },
+  empty: {
+    title: "Yer uchastkalari hali qo‘shilmagan",
+    description: "Ma’lumotlar bazasida ko‘rsatish uchun yer uchastkalari yo‘q.",
+    notSpecified: "Ko‘rsatilmagan",
+    notSpecifiedFeminine: "Ko‘rsatilmagan",
+  },
+  databaseError: {
+    mapTitle: "Xarita vaqtincha ishlamayapti",
+    plotTitle: "Ma’lumotlar vaqtincha mavjud emas",
+    mapDescription: "Ma’lumotlar bazasiga ulanib bo‘lmadi. PostgreSQL/PostGIS ishga tushirilganini tekshirib, qayta urinib ko‘ring.",
+    plotDescription: "Ma’lumotlar bazasiga ulanib bo‘lmadi. PostgreSQL/PostGIS holatini tekshirib, qayta urinib ko‘ring.",
+  },
+  notFound: { title: "Sahifa topilmadi", description: "So‘ralgan sahifa mavjud emas yoki ko‘chirilgan.", backHome: "Bosh sahifaga qaytish" },
+  units: { hectare: "ga", points: "ball" },
+  plotStatuses: { active: "Faol", inactive: "Faol emas", archived: "Arxivlangan" },
+} satisfies Dictionary;

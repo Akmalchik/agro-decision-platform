@@ -3,27 +3,28 @@ import { notFound } from "next/navigation";
 import { PlotDetails } from "@/components/plots/plot-details";
 import { DataState } from "@/components/ui/data-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { localePathSegments } from "@/i18n/config";
+import { getDictionary, getLocale } from "@/i18n";
 import { plotService } from "@/services/composition-root";
 
-type PlotPageProps = { params: Promise<{ id: string }> };
+type PlotPageProps = { params: Promise<{ locale: string; id: string }> };
 
 export default async function PlotPage({ params }: PlotPageProps) {
-  const { id } = await params;
+  const { locale: segment, id } = await params;
+  const locale = getLocale(segment);
+  const dictionary = getDictionary(locale);
+  const mapHref = `/${localePathSegments[locale]}/map`;
   let plot;
 
   try {
     plot = await plotService.getById(id);
   } catch (error) {
     console.warn(`Unable to load plot ${id}.`, error);
-
     return (
       <div className="space-y-6">
-        <PageHeader title="Карточка участка" description={`Идентификатор: ${id}`} />
-        <DataState
-          title="Данные временно недоступны"
-          description="Не удалось подключиться к базе данных. Проверьте PostgreSQL/PostGIS и повторите попытку."
-        />
-        <Link className="inline-block font-medium text-[var(--primary)]" href="/map">← Вернуться к карте</Link>
+        <PageHeader title={dictionary.plot.title} description={`${dictionary.plot.identifier}: ${id}`} />
+        <DataState title={dictionary.databaseError.plotTitle} description={dictionary.databaseError.plotDescription} />
+        <Link className="inline-block font-medium text-[var(--primary)]" href={mapHref}>← {dictionary.buttons.backToMap}</Link>
       </div>
     );
   }
@@ -32,9 +33,11 @@ export default async function PlotPage({ params }: PlotPageProps) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Карточка участка" description={plot.farmName} />
+      <PageHeader title={dictionary.plot.title} description={plot.farmName} />
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <PlotDetails
+          locale={locale}
+          dictionary={dictionary}
           plot={{
             cadastralNumber: plot.cadastralNumber,
             farmName: plot.farmName,
@@ -43,7 +46,7 @@ export default async function PlotPage({ params }: PlotPageProps) {
             specialization: plot.specialization,
           }}
         />
-        <Link className="mt-5 inline-block font-medium text-[var(--primary)]" href="/map">← Вернуться к карте</Link>
+        <Link className="mt-5 inline-block font-medium text-[var(--primary)]" href={mapHref}>← {dictionary.buttons.backToMap}</Link>
       </section>
     </div>
   );
