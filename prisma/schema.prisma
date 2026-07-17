@@ -15,6 +15,10 @@ model Plot {
   area            Decimal                                 @db.Decimal(12, 2)
   geometry        Unsupported("geometry(Geometry, 4326)")
   specialization  String?
+  taxId           String?                                 @map("tax_id")
+  waterSupply     String?                                 @map("water_supply")
+  previousCrop    String?                                 @map("previous_crop")
+  lastHarvestDate DateTime?                               @map("last_harvest_date") @db.Date
   createdAt       DateTime                                @default(now()) @map("created_at")
   soilProfile     SoilProfile?
   recommendations Recommendation[]
@@ -33,11 +37,23 @@ model SoilProfile {
 }
 
 model Crop {
-  id                 String              @id @default(uuid()) @db.Uuid
-  name               String              @unique
-  category           String
-  productionBalances ProductionBalance[]
-  recommendations    Recommendation[]
+  id                   String               @id @default(uuid()) @db.Uuid
+  code                 String               @unique
+  name                 String               @unique
+  nameUzLatn           String               @map("name_uz_latn")
+  nameUzCyrl           String               @map("name_uz_cyrl")
+  nameRu               String               @map("name_ru")
+  category             String
+  minBonitet           Int                  @map("min_bonitet")
+  optimalBonitetMin    Int                  @map("optimal_bonitet_min")
+  optimalBonitetMax    Int                  @map("optimal_bonitet_max")
+  waterNeed            String               @map("water_need")
+  descriptionUzLatn    String               @map("description_uz_latn")
+  descriptionUzCyrl    String               @map("description_uz_cyrl")
+  descriptionRu        String               @map("description_ru")
+  active               Boolean              @default(true)
+  productionBalances   ProductionBalance[]
+  recommendationItems  RecommendationItem[]
 
   @@index([category])
   @@map("crops")
@@ -58,15 +74,50 @@ model ProductionBalance {
 }
 
 model Recommendation {
-  id          String  @id @default(uuid()) @db.Uuid
-  plotId      String  @map("plot_id") @db.Uuid
-  cropId      String  @map("crop_id") @db.Uuid
-  score       Decimal @db.Decimal(5, 2)
-  explanation String
-  plot        Plot    @relation(fields: [plotId], references: [id], onDelete: Cascade)
-  crop        Crop    @relation(fields: [cropId], references: [id], onDelete: Restrict)
+  id                String               @id @default(uuid()) @db.Uuid
+  plotId            String               @map("plot_id") @db.Uuid
+  stage             String
+  calculatedAt      DateTime             @default(now()) @map("calculated_at")
+  algorithmVersion  String               @map("algorithm_version")
+  inputBonitet      Decimal              @map("input_bonitet") @db.Decimal(5, 2)
+  inputWaterSupply  String               @map("input_water_supply")
+  inputPreviousCrop String               @map("input_previous_crop")
+  plot              Plot                 @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  items             RecommendationItem[]
 
-  @@unique([plotId, cropId])
-  @@index([cropId])
+  @@index([plotId, stage, calculatedAt])
   @@map("recommendations")
+}
+
+model RecommendationItem {
+  id               String         @id @default(uuid()) @db.Uuid
+  recommendationId String         @map("recommendation_id") @db.Uuid
+  cropId           String         @map("crop_id") @db.Uuid
+  rank             Int
+  finalScore       Int            @map("final_score")
+  bonitetScore     Int            @map("bonitet_score")
+  waterScore       Int            @map("water_score")
+  rotationScore    Int            @map("rotation_score")
+  status           String
+  reasonKeys       Json           @map("reason_keys")
+  warningKeys      Json           @map("warning_keys")
+  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  crop             Crop           @relation(fields: [cropId], references: [id], onDelete: Restrict)
+
+  @@unique([recommendationId, cropId])
+  @@unique([recommendationId, rank])
+  @@index([cropId])
+  @@map("recommendation_items")
+}
+
+model CropRotationRule {
+  id                 String @id @default(uuid()) @db.Uuid
+  previousCropCode   String @map("previous_crop_code")
+  nextCropCode       String @map("next_crop_code")
+  compatibilityScore Int    @map("compatibility_score")
+  status             String
+  explanationKey     String @map("explanation_key")
+
+  @@unique([previousCropCode, nextCropCode])
+  @@map("crop_rotation_rules")
 }

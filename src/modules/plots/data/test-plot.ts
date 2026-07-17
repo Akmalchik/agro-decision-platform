@@ -9,6 +9,9 @@ export const TEST_PLOT: Plot = {
   owner: "Тестовый землепользователь",
   area: "42.7",
   specialization: "Хлопково-зерновое хозяйство",
+  taxId: null,
+  waterSupply: null,
+  previousCrop: null,
   createdAt: new Date("2026-07-13T00:00:00.000Z"),
   soilProfile: {
     id: "a9cabd54-cf93-4845-a96e-c13f0636e993",

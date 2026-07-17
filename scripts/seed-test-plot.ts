@@ -17,6 +17,9 @@ async function seedTestPlot() {
         "area",
         "geometry",
         "specialization",
+        "tax_id",
+        "water_supply",
+        "previous_crop",
         "created_at"
       ) VALUES (
         ${TEST_PLOT.id}::uuid,
@@ -26,6 +29,9 @@ async function seedTestPlot() {
         ${TEST_PLOT.area}::numeric,
         ST_SetSRID(ST_GeomFromGeoJSON(${geometry}::json), 4326),
         ${TEST_PLOT.specialization},
+        ${TEST_PLOT.taxId},
+        ${TEST_PLOT.waterSupply},
+        ${TEST_PLOT.previousCrop},
         ${TEST_PLOT.createdAt}
       )
       ON CONFLICT ("id") DO UPDATE SET
@@ -34,7 +40,10 @@ async function seedTestPlot() {
         "owner" = EXCLUDED."owner",
         "area" = EXCLUDED."area",
         "geometry" = EXCLUDED."geometry",
-        "specialization" = EXCLUDED."specialization"
+        "specialization" = EXCLUDED."specialization",
+        "tax_id" = EXCLUDED."tax_id",
+        "water_supply" = EXCLUDED."water_supply",
+        "previous_crop" = EXCLUDED."previous_crop"
     `;
 
     if (TEST_PLOT.soilProfile) {

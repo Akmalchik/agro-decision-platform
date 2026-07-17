@@ -12,6 +12,9 @@ export const prismaPlotRepository: PlotRepository = {
         owner: true,
         area: true,
         specialization: true,
+        taxId: true,
+        waterSupply: true,
+        previousCrop: true,
         createdAt: true,
         soilProfile: {
           select: { id: true, plotId: true, bonitet: true },

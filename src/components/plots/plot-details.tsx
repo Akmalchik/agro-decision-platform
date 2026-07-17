@@ -8,6 +8,9 @@ export type PlotDetailsData = {
   area: string;
   bonitet: string | null;
   specialization: string | null;
+  taxId?: string | null;
+  waterSupply?: string | null;
+  previousCrop?: string | null;
 };
 
 export function PlotDetails({ plot, locale, dictionary }: { plot: PlotDetailsData; locale: Locale; dictionary: Dictionary }) {
@@ -18,6 +21,20 @@ export function PlotDetails({ plot, locale, dictionary }: { plot: PlotDetailsDat
     [dictionary.plot.bonitet, plot.bonitet ? `${formatNumber(plot.bonitet, intlLocales[locale])} ${dictionary.units.points}` : dictionary.empty.notSpecified],
     [dictionary.plot.specialization, plot.specialization ?? dictionary.empty.notSpecifiedFeminine],
   ];
+
+  if ("taxId" in plot) rows.push([dictionary.creation.taxId, plot.taxId ?? dictionary.empty.notSpecified]);
+  if ("waterSupply" in plot) {
+    const value = plot.waterSupply && plot.waterSupply in dictionary.creation.waterOptions
+      ? dictionary.creation.waterOptions[plot.waterSupply as keyof typeof dictionary.creation.waterOptions]
+      : plot.waterSupply;
+    rows.push([dictionary.plot.waterSupply, value ?? dictionary.empty.notSpecifiedFeminine]);
+  }
+  if ("previousCrop" in plot) {
+    const value = plot.previousCrop && plot.previousCrop in dictionary.creation.cropOptions
+      ? dictionary.creation.cropOptions[plot.previousCrop as keyof typeof dictionary.creation.cropOptions]
+      : plot.previousCrop;
+    rows.push([dictionary.plot.previousCrop, value ?? dictionary.empty.notSpecifiedFeminine]);
+  }
 
   return (
     <dl className="grid gap-4 sm:grid-cols-2">

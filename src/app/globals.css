@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
+@import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 
 :root {
   --background: #f4f7f1;
@@ -19,3 +20,45 @@ body {
 }
 
 a { color: inherit; text-decoration: none; }
+
+/* Keep localized Leaflet-Geoman actions compact and clickable above the map. */
+.leaflet-pm-toolbar,
+.leaflet-control {
+  pointer-events: auto;
+}
+
+.leaflet-pm-toolbar {
+  z-index: 1000 !important;
+  width: auto;
+  max-width: calc(100vw - 24px);
+}
+
+.leaflet-pm-toolbar .button-container {
+  width: auto;
+  max-width: none;
+  overflow: visible;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-actions-container {
+  z-index: 1001 !important;
+  width: max-content;
+  max-width: calc(100vw - 80px);
+  pointer-events: auto;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-actions-container a.leaflet-pm-action {
+  position: relative;
+  z-index: 1002;
+  width: auto !important;
+  min-width: max-content;
+  height: 30px;
+  padding: 0 10px;
+  overflow: hidden;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.leaflet-tooltip {
+  pointer-events: none !important;
+}

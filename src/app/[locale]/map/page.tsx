@@ -28,6 +28,7 @@ export default async function MapPage({ params }: { params: Promise<{ locale: st
       <div className="space-y-6">
         <PageHeader title={dictionary.map.title} description={dictionary.map.description} />
         <DataState title={dictionary.empty.title} description={dictionary.empty.description} />
+        <MapShell dataset={dataset} locale={locale} dictionary={dictionary} />
       </div>
     );
   }

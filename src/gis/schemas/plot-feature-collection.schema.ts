@@ -11,7 +11,7 @@ const linearRingSchema = z.array(positionSchema).min(4).refine(
   "GeoJSON linear ring must be closed",
 );
 
-const polygonSchema = z.object({
+export const polygonSchema = z.object({
   type: z.literal("Polygon"),
   coordinates: z.array(linearRingSchema).min(1),
 });

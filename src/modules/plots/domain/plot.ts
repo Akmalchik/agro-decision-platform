@@ -7,6 +7,9 @@ export type Plot = {
   owner: string;
   area: string;
   specialization: string | null;
+  taxId: string | null;
+  waterSupply: string | null;
+  previousCrop: string | null;
   createdAt: Date;
   soilProfile: SoilProfile | null;
 };

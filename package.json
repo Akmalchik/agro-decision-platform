@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test:recommendation": "node --import tsx scripts/test-first-stage-recommendation.ts",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
     "db:generate": "prisma generate",
@@ -18,6 +19,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.19.0",
     "@prisma/client": "^6.0.0",
     "@tanstack/react-query": "^5.0.0",
     "leaflet": "^1.9.4",

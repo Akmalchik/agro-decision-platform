@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PlotDetails } from "@/components/plots/plot-details";
+import { PlotGeometryMapShell } from "@/components/plots/plot-geometry-map-shell";
+import { FirstStageRecommendations } from "@/components/recommendations/first-stage-recommendations";
 import { DataState } from "@/components/ui/data-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { localePathSegments } from "@/i18n/config";
@@ -15,9 +17,10 @@ export default async function PlotPage({ params }: PlotPageProps) {
   const dictionary = getDictionary(locale);
   const mapHref = `/${localePathSegments[locale]}/map`;
   let plot;
+  let geometry;
 
   try {
-    plot = await plotService.getById(id);
+    [plot, geometry] = await Promise.all([plotService.getById(id), plotService.getGeometryById(id)]);
   } catch (error) {
     console.warn(`Unable to load plot ${id}.`, error);
     return (
@@ -29,11 +32,12 @@ export default async function PlotPage({ params }: PlotPageProps) {
     );
   }
 
-  if (!plot) notFound();
+  if (!plot || !geometry) notFound();
 
   return (
     <div className="space-y-6">
       <PageHeader title={dictionary.plot.title} description={plot.farmName} />
+      <PlotGeometryMapShell details={geometry} dictionary={dictionary} />
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <PlotDetails
           locale={locale}
@@ -44,10 +48,16 @@ export default async function PlotPage({ params }: PlotPageProps) {
             area: plot.area,
             bonitet: plot.soilProfile?.bonitet ?? null,
             specialization: plot.specialization,
+            taxId: plot.taxId,
+            waterSupply: plot.waterSupply,
+            previousCrop: plot.previousCrop,
           }}
         />
-        <Link className="mt-5 inline-block font-medium text-[var(--primary)]" href={mapHref}>← {dictionary.buttons.backToMap}</Link>
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          <Link className="font-medium text-[var(--primary)]" href={mapHref}>← {dictionary.buttons.backToMap}</Link>
+        </div>
       </section>
+      <FirstStageRecommendations plotId={id} locale={locale} dictionary={dictionary} />
     </div>
   );
 }
