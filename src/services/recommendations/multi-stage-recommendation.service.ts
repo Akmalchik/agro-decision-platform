@@ -1,4 +1,5 @@
 import type { RecommendationScenarioSource } from "@/modules/recommendations/domain/recommendation-scenario-source";
+import { calculateMvpMultiStageRecommendations } from "@/modules/recommendations/domain/mvp-multi-stage-rule-engine";
 
 export class MultiStageRecommendationService {
   constructor(private readonly scenarios: RecommendationScenarioSource) {}
@@ -9,7 +10,7 @@ export class MultiStageRecommendationService {
 
     return {
       ...scenario,
-      recommendations: [...scenario.recommendations]
+      recommendations: calculateMvpMultiStageRecommendations(scenario)
         .sort((left, right) => right.score - left.score || left.cropCode.localeCompare(right.cropCode))
         .slice(0, 3)
         .map((recommendation, index) => ({ ...recommendation, rank: index + 1 })),

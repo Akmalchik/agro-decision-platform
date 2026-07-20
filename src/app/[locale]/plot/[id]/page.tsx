@@ -51,7 +51,9 @@ export default async function PlotPage({ params }: PlotPageProps) {
             cadastralNumber: plot.cadastralNumber,
             farmName: plot.farmName,
             area: plot.area,
-            bonitet: plot.soilProfile?.bonitet ?? null,
+            bonitet: multiStageRecommendation
+              ? String(multiStageRecommendation.inputs.plot.bonitet)
+              : plot.soilProfile?.bonitet ?? null,
             specialization: plot.specialization,
             taxId: plot.taxId,
             waterSupply: plot.waterSupply,

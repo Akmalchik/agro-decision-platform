@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { calculateBonitetScore, calculateFinalScore, calculateWaterScore } from "../src/modules/recommendations/domain/scoring";
+import { calculateMvpMultiStageRecommendations } from "../src/modules/recommendations/domain/mvp-multi-stage-rule-engine";
 import { piskentMvpRecommendationScenarioSource } from "../src/modules/recommendations/data/piskent-mvp-recommendation-scenarios";
 import { MultiStageRecommendationService } from "../src/services/recommendations/multi-stage-recommendation.service";
 
@@ -21,12 +22,26 @@ const thirdStage = multiStageService.getForCadastralNumber("11:10:000172582");
 const fourthStage = multiStageService.getForCadastralNumber("11:10:000005739");
 
 assert.equal(firstStage?.stage, "FIRST_STAGE");
+assert.equal(firstStage?.inputs.plot.bonitet, 68);
 assert.equal(thirdStage?.stage, "THIRD_STAGE");
+assert.equal(thirdStage?.inputs.plot.bonitet, 57);
 assert.equal(thirdStage?.districtCropDistributionPercent, 80);
 assert.equal(fourthStage?.stage, "FOURTH_STAGE");
+assert.equal(fourthStage?.inputs.plot.bonitet, 74);
 assert.equal(firstStage?.recommendations.length, 3);
 assert.equal(thirdStage?.recommendations.length, 3);
 assert.equal(fourthStage?.recommendations.length, 3);
 assert.equal(multiStageService.getForCadastralNumber("unknown"), null);
+
+const firstStageScenario = piskentMvpRecommendationScenarioSource.findByCadastralNumber("11:10:000000612");
+assert.ok(firstStageScenario);
+assert.deepEqual(firstStageScenario.recommendations, []);
+
+const calculatedOnce = calculateMvpMultiStageRecommendations(firstStageScenario);
+const calculatedTwice = calculateMvpMultiStageRecommendations(firstStageScenario);
+assert.deepEqual(calculatedOnce, calculatedTwice);
+assert.equal(calculatedOnce.length, 8);
+assert.ok(calculatedOnce.every((item) => item.reasonKeys.length > 0));
+assert.ok(calculatedOnce.some((item) => item.reasonKeys.includes("plot.rotationSuitable")));
 
 console.info("First-stage recommendation scoring tests passed.");
