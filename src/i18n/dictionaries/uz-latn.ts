@@ -146,6 +146,7 @@ export const uzLatn = {
     topThree: "TOP-3 tavsiya etilgan ekin",
     reasons: "Tavsiya sabablari",
     districtDistribution: "Hudud ekinlari taqsimoti",
+    analysisCompleteness: "Tahlil to‘liqligi",
     stages: { FIRST_STAGE: "1-bosqich", THIRD_STAGE: "3-bosqich", FOURTH_STAGE: "4-bosqich" },
     descriptions: {
       FIRST_STAGE: "Tavsiya faqat yer uchastkasining xususiyatlari va almashlab ekish qoidalariga asoslangan.",
@@ -178,5 +179,17 @@ export const uzLatn = {
     hectares: "ga",
     priceUnit: "so‘m/kg",
     levels: { LOW: "Past", MEDIUM: "O‘rtacha", HIGH: "Yuqori" },
+  },
+  plotAnalytics: {
+    title: "Yer tahlili",
+    labels: { bonitet: "Bonitet", water: "Suv ta’minoti", previousCrop: "Oldingi ekin", area: "Maydon", rotation: "Almashlab ekish" },
+    previousCrops: { BUGDOY: "Bug‘doy", PAXTA: "Paxta", MAKKAJOXORI: "Makkajo‘xori", SHOLI: "Sholi", SABZAVOT: "Sabzavot", DUKKAKLI: "Dukkakli ekin", BOSH: "Bo‘sh maydon", BOSHQA: "Boshqa" },
+    waterAssessments: { SUFFICIENT: "Yetarli", MODERATE: "O‘rtacha", LIMITED: "Cheklangan" },
+    rotationAssessments: { COMPATIBLE: "Mos", NEUTRAL: "Neytral", UNDESIRABLE: "Nomaqbul" },
+  },
+  aiConfidence: {
+    title: "AI Confidence",
+    caption: "AI tavsiyasi mavjud yer va hudud ma’lumotlariga asoslangan.",
+    levels: { LOW: "Past ishonchlilik", MEDIUM: "O‘rta ishonchlilik", HIGH: "Yuqori ishonchlilik" },
   },
 } satisfies Dictionary;

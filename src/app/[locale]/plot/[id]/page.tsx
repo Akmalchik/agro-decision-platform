@@ -4,11 +4,14 @@ import { PlotDetails } from "@/components/plots/plot-details";
 import { PlotGeometryMapShell } from "@/components/plots/plot-geometry-map-shell";
 import { FirstStageRecommendations } from "@/components/recommendations/first-stage-recommendations";
 import { MultiStageRecommendations } from "@/components/recommendations/multi-stage-recommendations";
+import { AiConfidenceCard } from "@/components/recommendations/ai-confidence-card";
 import { DataState } from "@/components/ui/data-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { localePathSegments } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n";
 import { piskentMvpDistrictAnalyticsSource } from "@/modules/recommendations/data/piskent-mvp-district-analytics";
+import { piskentMvpPlotAnalyticsSource } from "@/modules/recommendations/data/piskent-mvp-plot-analytics";
+import { piskentMvpRecommendationConfidenceSource } from "@/modules/recommendations/data/piskent-mvp-recommendation-confidence";
 import { multiStageRecommendationService, plotService } from "@/services/composition-root";
 
 type PlotPageProps = { params: Promise<{ locale: string; id: string }> };
@@ -43,6 +46,8 @@ export default async function PlotPage({ params }: PlotPageProps) {
   const districtAnalytics = selectedCrop
     ? piskentMvpDistrictAnalyticsSource.findByCadastralAndCrop(plot.cadastralNumber, selectedCrop)
     : null;
+  const plotAnalytics = piskentMvpPlotAnalyticsSource.findByCadastralNumber(plot.cadastralNumber);
+  const recommendationConfidence = piskentMvpRecommendationConfidenceSource.findByCadastralNumber(plot.cadastralNumber);
 
   return (
     <div className="space-y-6">
@@ -70,7 +75,10 @@ export default async function PlotPage({ params }: PlotPageProps) {
         </div>
       </section>
       {multiStageRecommendation
-        ? <MultiStageRecommendations result={multiStageRecommendation} analytics={districtAnalytics} locale={locale} dictionary={dictionary} />
+        ? <>
+            {recommendationConfidence ? <AiConfidenceCard confidence={recommendationConfidence} dictionary={dictionary} /> : null}
+            <MultiStageRecommendations result={multiStageRecommendation} plotAnalytics={plotAnalytics} districtAnalytics={districtAnalytics} locale={locale} dictionary={dictionary} />
+          </>
         : <FirstStageRecommendations plotId={id} locale={locale} dictionary={dictionary} />}
     </div>
   );

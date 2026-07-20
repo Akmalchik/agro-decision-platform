@@ -106,6 +106,7 @@ export type Dictionary = {
     topThree: string;
     reasons: string;
     districtDistribution: string;
+    analysisCompleteness: string;
     stages: Record<RecommendationStage, string>;
     descriptions: Record<RecommendationStage, string>;
     reasonKeys: Record<ScenarioReasonKey, string>;
@@ -122,6 +123,18 @@ export type Dictionary = {
     tons: string;
     hectares: string;
     priceUnit: string;
+    levels: Record<"LOW" | "MEDIUM" | "HIGH", string>;
+  };
+  plotAnalytics: {
+    title: string;
+    labels: Record<"bonitet" | "water" | "previousCrop" | "area" | "rotation", string>;
+    previousCrops: Record<"BUGDOY" | "PAXTA" | "MAKKAJOXORI" | "SHOLI" | "SABZAVOT" | "DUKKAKLI" | "BOSH" | "BOSHQA", string>;
+    waterAssessments: Record<"SUFFICIENT" | "MODERATE" | "LIMITED", string>;
+    rotationAssessments: Record<"COMPATIBLE" | "NEUTRAL" | "UNDESIRABLE", string>;
+  };
+  aiConfidence: {
+    title: string;
+    caption: string;
     levels: Record<"LOW" | "MEDIUM" | "HIGH", string>;
   };
 };

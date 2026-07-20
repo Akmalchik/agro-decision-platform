@@ -1,8 +1,10 @@
 import type { Dictionary } from "@/i18n/types";
 import type { Locale } from "@/i18n/config";
 import type { DistrictAnalytics } from "@/modules/recommendations/domain/district-analytics";
+import type { PlotAnalytics } from "@/modules/recommendations/domain/plot-analytics";
 import type { MultiStageRecommendationService } from "@/services/recommendations/multi-stage-recommendation.service";
 import { DistrictAnalyticsPanel } from "@/components/recommendations/district-analytics-panel";
+import { PlotAnalyticsPanel } from "@/components/recommendations/plot-analytics-panel";
 
 type RecommendationResult = NonNullable<ReturnType<MultiStageRecommendationService["getForCadastralNumber"]>>;
 
@@ -14,8 +16,10 @@ const stageBadgeClasses = {
 
 const rankMedals = ["🥇", "🥈", "🥉"] as const;
 
-export function MultiStageRecommendations({ result, analytics, locale, dictionary }: { result: RecommendationResult; analytics: DistrictAnalytics | null; locale: Locale; dictionary: Dictionary }) {
+export function MultiStageRecommendations({ result, plotAnalytics, districtAnalytics, locale, dictionary }: { result: RecommendationResult; plotAnalytics: PlotAnalytics | null; districtAnalytics: DistrictAnalytics | null; locale: Locale; dictionary: Dictionary }) {
   const messages = dictionary.multiStageRecommendation;
+  const stageProgress = result.stage === "FOURTH_STAGE" ? 100 : result.districtCropDistributionPercent ?? 0;
+  const stageProgressLabel = result.stage === "FOURTH_STAGE" ? messages.analysisCompleteness : messages.districtDistribution;
 
   return (
     <section className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50/80 shadow-sm" aria-labelledby="ai-recommendation-title">
@@ -32,24 +36,25 @@ export function MultiStageRecommendations({ result, analytics, locale, dictionar
                 {messages.stages[result.stage]}
               </span>
             </div>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-700">{messages.automatedExplanation}</p>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">{messages.descriptions[result.stage]}</p>
           </div>
-          {result.districtCropDistributionPercent !== undefined ? (
+          {result.stage !== "FIRST_STAGE" ? (
             <div className="w-full shrink-0 rounded-2xl border border-blue-200 bg-blue-50/80 p-4 sm:w-60">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 text-sm font-medium leading-5 text-blue-900">{messages.districtDistribution}</p>
-                <p className="shrink-0 text-2xl font-semibold tabular-nums text-blue-950">{result.districtCropDistributionPercent}%</p>
+                <p className="min-w-0 text-sm font-medium leading-5 text-blue-900">{stageProgressLabel}</p>
+                <p className="shrink-0 text-2xl font-semibold tabular-nums text-blue-950">{stageProgress}%</p>
               </div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-blue-100">
-                <div className="recommendation-progress h-full rounded-full bg-blue-700" style={{ width: `${result.districtCropDistributionPercent}%` }} role="progressbar" aria-label={messages.districtDistribution} aria-valuemin={0} aria-valuemax={100} aria-valuenow={result.districtCropDistributionPercent} />
+                <div className="recommendation-progress h-full rounded-full bg-blue-700" style={{ width: `${stageProgress}%` }} role="progressbar" aria-label={stageProgressLabel} aria-valuemin={0} aria-valuemax={100} aria-valuenow={stageProgress} />
               </div>
             </div>
           ) : null}
         </div>
       </div>
 
-      {analytics ? <DistrictAnalyticsPanel analytics={analytics} locale={locale} dictionary={dictionary} /> : null}
+      {plotAnalytics ? <PlotAnalyticsPanel analytics={plotAnalytics} locale={locale} dictionary={dictionary} /> : null}
+      {result.stage !== "FIRST_STAGE" && districtAnalytics
+        ? <DistrictAnalyticsPanel analytics={districtAnalytics} locale={locale} dictionary={dictionary} showMarketIndicators={result.stage === "FOURTH_STAGE"} />
+        : null}
 
       <div className="p-4 sm:p-6 lg:p-8">
         <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-500">{messages.topThree}</h3>

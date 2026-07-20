@@ -146,6 +146,7 @@ export const ru = {
     topThree: "TOP-3 рекомендуемых культур",
     reasons: "Причины рекомендации",
     districtDistribution: "Распределение культур района",
+    analysisCompleteness: "Полнота анализа",
     stages: { FIRST_STAGE: "1-й этап", THIRD_STAGE: "3-й этап", FOURTH_STAGE: "4-й этап" },
     descriptions: {
       FIRST_STAGE: "Рекомендация основана только на характеристиках участка и правилах севооборота.",
@@ -178,5 +179,17 @@ export const ru = {
     hectares: "га",
     priceUnit: "сум/кг",
     levels: { LOW: "Низкий", MEDIUM: "Средний", HIGH: "Высокий" },
+  },
+  plotAnalytics: {
+    title: "Анализ участка",
+    labels: { bonitet: "Бонитет", water: "Водообеспеченность", previousCrop: "Предыдущая культура", area: "Площадь", rotation: "Севооборот" },
+    previousCrops: { BUGDOY: "Пшеница", PAXTA: "Хлопок", MAKKAJOXORI: "Кукуруза", SHOLI: "Рис", SABZAVOT: "Овощи", DUKKAKLI: "Бобовые", BOSH: "Свободное поле", BOSHQA: "Другое" },
+    waterAssessments: { SUFFICIENT: "Достаточная", MODERATE: "Средняя", LIMITED: "Ограниченная" },
+    rotationAssessments: { COMPATIBLE: "Подходит", NEUTRAL: "Нейтрально", UNDESIRABLE: "Нежелательно" },
+  },
+  aiConfidence: {
+    title: "Уверенность AI",
+    caption: "AI-рекомендация основана на доступных данных участка и района.",
+    levels: { LOW: "Низкая уверенность", MEDIUM: "Средняя уверенность", HIGH: "Высокая уверенность" },
   },
 } satisfies Dictionary;

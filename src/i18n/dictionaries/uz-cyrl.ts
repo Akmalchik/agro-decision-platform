@@ -146,6 +146,7 @@ export const uzCyrl = {
     topThree: "TOP-3 тавсия этилган экин",
     reasons: "Тавсия сабаблари",
     districtDistribution: "Ҳудуд экинлари тақсимоти",
+    analysisCompleteness: "Таҳлил тўлиқлиги",
     stages: { FIRST_STAGE: "1-босқич", THIRD_STAGE: "3-босқич", FOURTH_STAGE: "4-босқич" },
     descriptions: {
       FIRST_STAGE: "Тавсия фақат ер участкасининг хусусиятлари ва алмашлаб экиш қоидаларига асосланган.",
@@ -178,5 +179,17 @@ export const uzCyrl = {
     hectares: "га",
     priceUnit: "сўм/кг",
     levels: { LOW: "Паст", MEDIUM: "Ўртача", HIGH: "Юқори" },
+  },
+  plotAnalytics: {
+    title: "Ер таҳлили",
+    labels: { bonitet: "Бонитет", water: "Сув таъминоти", previousCrop: "Олдинги экин", area: "Майдон", rotation: "Алмашлаб экиш" },
+    previousCrops: { BUGDOY: "Буғдой", PAXTA: "Пахта", MAKKAJOXORI: "Маккажўхори", SHOLI: "Шоли", SABZAVOT: "Сабзавот", DUKKAKLI: "Дуккакли экин", BOSH: "Бўш майдон", BOSHQA: "Бошқа" },
+    waterAssessments: { SUFFICIENT: "Етарли", MODERATE: "Ўртача", LIMITED: "Чекланган" },
+    rotationAssessments: { COMPATIBLE: "Мос", NEUTRAL: "Нейтрал", UNDESIRABLE: "Номақбул" },
+  },
+  aiConfidence: {
+    title: "AI Confidence",
+    caption: "AI тавсияси мавжуд ер ва ҳудуд маълумотларига асосланган.",
+    levels: { LOW: "Паст ишончлилик", MEDIUM: "Ўрта ишончлилик", HIGH: "Юқори ишончлилик" },
   },
 } satisfies Dictionary;
