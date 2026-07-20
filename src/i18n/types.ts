@@ -100,7 +100,9 @@ export type Dictionary = {
   };
   multiStageRecommendation: {
     title: string;
+    automatedExplanation: string;
     stage: string;
+    scoreUnit: string;
     topThree: string;
     reasons: string;
     districtDistribution: string;

@@ -140,7 +140,9 @@ export const uzCyrl = {
   },
   multiStageRecommendation: {
     title: "AI тавсияси",
+    automatedExplanation: "Мазкур тавсия ер ҳолати ва ҳудуддаги мавжуд маълумотлар асосида автоматик шакллантирилган.",
     stage: "Тавсия босқичи",
+    scoreUnit: "балл",
     topThree: "TOP-3 тавсия этилган экин",
     reasons: "Тавсия сабаблари",
     districtDistribution: "Ҳудуд экинлари тақсимоти",

@@ -140,7 +140,9 @@ export const uzLatn = {
   },
   multiStageRecommendation: {
     title: "AI tavsiyasi",
+    automatedExplanation: "Mazkur tavsiya yer holati va hududdagi mavjud ma’lumotlar asosida avtomatik shakllantirilgan.",
     stage: "Tavsiya bosqichi",
+    scoreUnit: "ball",
     topThree: "TOP-3 tavsiya etilgan ekin",
     reasons: "Tavsiya sabablari",
     districtDistribution: "Hudud ekinlari taqsimoti",

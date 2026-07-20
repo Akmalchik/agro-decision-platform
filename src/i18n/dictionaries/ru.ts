@@ -140,7 +140,9 @@ export const ru = {
   },
   multiStageRecommendation: {
     title: "AI-рекомендация",
+    automatedExplanation: "Рекомендация сформирована автоматически на основе характеристик участка и доступных данных по району.",
     stage: "Этап рекомендации",
+    scoreUnit: "баллов",
     topThree: "TOP-3 рекомендуемых культур",
     reasons: "Причины рекомендации",
     districtDistribution: "Распределение культур района",
