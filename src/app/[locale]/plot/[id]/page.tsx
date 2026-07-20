@@ -11,6 +11,9 @@ import { plotService } from "@/services/composition-root";
 
 type PlotPageProps = { params: Promise<{ locale: string; id: string }> };
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default async function PlotPage({ params }: PlotPageProps) {
   const { locale: segment, id } = await params;
   const locale = getLocale(segment);

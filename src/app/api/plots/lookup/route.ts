@@ -5,6 +5,8 @@ import type { PlotLookupRecord } from "@/modules/plots/domain/plot-lookup-source
 import { plotService } from "@/services/composition-root";
 import type { ApiResponse } from "@/types/api";
 
+export const runtime = "nodejs";
+
 const querySchema = z.object({ method: plotLookupMethodSchema, value: z.string().trim().min(3).max(100) });
 
 export async function GET(request: Request) {

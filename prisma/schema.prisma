@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Plot {
@@ -22,8 +23,11 @@ model Plot {
   createdAt       DateTime                                @default(now()) @map("created_at")
   soilProfile     SoilProfile?
   recommendations Recommendation[]
+  legacyRecommendations LegacyRecommendation[]
 
   @@index([farmName])
+  @@index([taxId])
+  @@index([geometry], type: Gist, map: "plots_geometry_idx")
   @@map("plots")
 }
 
@@ -54,6 +58,7 @@ model Crop {
   active               Boolean              @default(true)
   productionBalances   ProductionBalance[]
   recommendationItems  RecommendationItem[]
+  legacyRecommendations LegacyRecommendation[]
 
   @@index([category])
   @@map("crops")
@@ -74,7 +79,7 @@ model ProductionBalance {
 }
 
 model Recommendation {
-  id                String               @id @default(uuid()) @db.Uuid
+  id                String               @id(map: "recommendations_v2_pkey") @default(uuid()) @db.Uuid
   plotId            String               @map("plot_id") @db.Uuid
   stage             String
   calculatedAt      DateTime             @default(now()) @map("calculated_at")
@@ -82,10 +87,10 @@ model Recommendation {
   inputBonitet      Decimal              @map("input_bonitet") @db.Decimal(5, 2)
   inputWaterSupply  String               @map("input_water_supply")
   inputPreviousCrop String               @map("input_previous_crop")
-  plot              Plot                 @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  plot              Plot                 @relation(fields: [plotId], references: [id], onDelete: Cascade, map: "recommendations_v2_plot_fkey")
   items             RecommendationItem[]
 
-  @@index([plotId, stage, calculatedAt])
+  @@index([plotId, stage, calculatedAt], map: "recommendations_v2_plot_stage_calculated_idx")
   @@map("recommendations")
 }
 
@@ -101,23 +106,37 @@ model RecommendationItem {
   status           String
   reasonKeys       Json           @map("reason_keys")
   warningKeys      Json           @map("warning_keys")
-  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
-  crop             Crop           @relation(fields: [cropId], references: [id], onDelete: Restrict)
+  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade, map: "recommendation_items_recommendation_fkey")
+  crop             Crop           @relation(fields: [cropId], references: [id], onDelete: Restrict, map: "recommendation_items_crop_fkey")
 
-  @@unique([recommendationId, cropId])
-  @@unique([recommendationId, rank])
-  @@index([cropId])
+  @@unique([recommendationId, cropId], map: "recommendation_items_recommendation_crop_key")
+  @@unique([recommendationId, rank], map: "recommendation_items_recommendation_rank_key")
+  @@index([cropId], map: "recommendation_items_crop_idx")
   @@map("recommendation_items")
 }
 
 model CropRotationRule {
-  id                 String @id @default(uuid()) @db.Uuid
+  id                 String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   previousCropCode   String @map("previous_crop_code")
   nextCropCode       String @map("next_crop_code")
   compatibilityScore Int    @map("compatibility_score")
   status             String
   explanationKey     String @map("explanation_key")
 
-  @@unique([previousCropCode, nextCropCode])
+  @@unique([previousCropCode, nextCropCode], map: "crop_rotation_rules_previous_next_key")
   @@map("crop_rotation_rules")
+}
+
+model LegacyRecommendation {
+  id          String  @id(map: "recommendations_pkey") @db.Uuid
+  plotId      String  @map("plot_id") @db.Uuid
+  cropId      String  @map("crop_id") @db.Uuid
+  score       Decimal @db.Decimal(5, 2)
+  explanation String
+  plot        Plot    @relation(fields: [plotId], references: [id], onDelete: Cascade, map: "recommendations_plot_id_fkey")
+  crop        Crop    @relation(fields: [cropId], references: [id], onDelete: Restrict, map: "recommendations_crop_id_fkey")
+
+  @@unique([plotId, cropId], map: "recommendations_plot_id_crop_id_key")
+  @@index([cropId], map: "recommendations_crop_id_idx")
+  @@map("legacy_recommendations")
 }

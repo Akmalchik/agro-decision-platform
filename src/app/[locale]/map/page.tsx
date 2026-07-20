@@ -5,6 +5,7 @@ import { getDictionary, getLocale } from "@/i18n";
 import { plotMapService } from "@/services/composition-root";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export default async function MapPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = getLocale((await params).locale);

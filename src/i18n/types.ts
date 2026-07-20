@@ -85,6 +85,9 @@ export type Dictionary = {
     rotation: string;
     reasons: string;
     warnings: string;
+    attention: string;
+    conclusion: string;
+    finalDecision: string;
     calculatedAt: string;
     algorithmVersion: string;
     cropNames: Record<"KARAM" | "MOSH" | "PIYOZ" | "KARTOSHKA" | "POMIDOR" | "SABZI" | "MAKKAJOXORI" | "LOVIYA", string>;

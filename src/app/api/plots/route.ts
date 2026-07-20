@@ -3,6 +3,8 @@ import { createPlotSchema } from "@/api/schemas/plot.schema";
 import { plotService } from "@/services/composition-root";
 import type { ApiResponse } from "@/types/api";
 
+export const runtime = "nodejs";
+
 type CreatePlotResponse = { id: string };
 
 export async function POST(request: Request) {

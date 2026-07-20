@@ -2,6 +2,9 @@
   "name": "agro-decision-platform",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.9 <25"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,6 +12,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:recommendation": "node --import tsx scripts/test-first-stage-recommendation.ts",
+    "postinstall": "prisma generate",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
     "db:generate": "prisma generate",

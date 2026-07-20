@@ -5,6 +5,8 @@ import { FirstStageRecommendationError } from "@/services/recommendations/first-
 import { firstStageRecommendationService } from "@/services/composition-root";
 import type { ApiResponse } from "@/types/api";
 
+export const runtime = "nodejs";
+
 const requestSchema = z.object({ plotId: z.uuid() });
 
 export async function POST(request: Request) {

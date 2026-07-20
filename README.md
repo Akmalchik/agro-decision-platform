@@ -28,7 +28,7 @@
 Требуется установленный и запущенный Docker Desktop либо совместимый Docker runtime.
 
 1. Установить зависимости: `npm install`.
-2. Скопировать `.env.example` в `.env`, если файл ещё не создан. Значение для стандартного Compose: `postgresql://agro:agro@localhost:5432/agro?schema=public`.
+2. Скопировать `.env.example` в `.env`. Для стандартного Compose задайте `DATABASE_URL` и `DIRECT_URL` одинаковым значением: `postgresql://agro:agro@localhost:5432/agro?schema=public`.
 3. Запустить PostgreSQL/PostGIS: `npm run db:start`.
 4. Создать Prisma Client: `npm run db:generate`.
 5. Применить миграции: `npm run db:migrate`.
@@ -43,4 +43,6 @@
 - `/map` — карта с тестовым земельным участком
 - `/plot/[id]` — карточка участка через сервисный слой
 - `/api/health` — проверка доступности приложения
+
+Production-инструкция для Vercel + Supabase находится в [`docs/deployment.md`](docs/deployment.md).
 # agro-decision-platform

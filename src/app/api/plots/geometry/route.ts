@@ -4,6 +4,8 @@ import type { PlotGeometryMetrics } from "@/gis/domain/plot-geometry-metrics";
 import { plotService } from "@/services/composition-root";
 import type { ApiResponse } from "@/types/api";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   const parsed = plotGeometrySchema.safeParse(await request.json());
   if (!parsed.success) {
