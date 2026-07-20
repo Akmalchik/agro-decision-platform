@@ -1,5 +1,8 @@
 import type { Dictionary } from "@/i18n/types";
+import type { Locale } from "@/i18n/config";
+import type { DistrictAnalytics } from "@/modules/recommendations/domain/district-analytics";
 import type { MultiStageRecommendationService } from "@/services/recommendations/multi-stage-recommendation.service";
+import { DistrictAnalyticsPanel } from "@/components/recommendations/district-analytics-panel";
 
 type RecommendationResult = NonNullable<ReturnType<MultiStageRecommendationService["getForCadastralNumber"]>>;
 
@@ -11,7 +14,7 @@ const stageBadgeClasses = {
 
 const rankMedals = ["🥇", "🥈", "🥉"] as const;
 
-export function MultiStageRecommendations({ result, dictionary }: { result: RecommendationResult; dictionary: Dictionary }) {
+export function MultiStageRecommendations({ result, analytics, locale, dictionary }: { result: RecommendationResult; analytics: DistrictAnalytics | null; locale: Locale; dictionary: Dictionary }) {
   const messages = dictionary.multiStageRecommendation;
 
   return (
@@ -45,6 +48,8 @@ export function MultiStageRecommendations({ result, dictionary }: { result: Reco
           ) : null}
         </div>
       </div>
+
+      {analytics ? <DistrictAnalyticsPanel analytics={analytics} locale={locale} dictionary={dictionary} /> : null}
 
       <div className="p-4 sm:p-6 lg:p-8">
         <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-500">{messages.topThree}</h3>

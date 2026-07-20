@@ -8,6 +8,7 @@ import { DataState } from "@/components/ui/data-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { localePathSegments } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n";
+import { piskentMvpDistrictAnalyticsSource } from "@/modules/recommendations/data/piskent-mvp-district-analytics";
 import { multiStageRecommendationService, plotService } from "@/services/composition-root";
 
 type PlotPageProps = { params: Promise<{ locale: string; id: string }> };
@@ -38,6 +39,10 @@ export default async function PlotPage({ params }: PlotPageProps) {
 
   if (!plot || !geometry) notFound();
   const multiStageRecommendation = multiStageRecommendationService.getForCadastralNumber(plot.cadastralNumber);
+  const selectedCrop = multiStageRecommendation?.recommendations[0]?.cropCode;
+  const districtAnalytics = selectedCrop
+    ? piskentMvpDistrictAnalyticsSource.findByCadastralAndCrop(plot.cadastralNumber, selectedCrop)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -65,7 +70,7 @@ export default async function PlotPage({ params }: PlotPageProps) {
         </div>
       </section>
       {multiStageRecommendation
-        ? <MultiStageRecommendations result={multiStageRecommendation} dictionary={dictionary} />
+        ? <MultiStageRecommendations result={multiStageRecommendation} analytics={districtAnalytics} locale={locale} dictionary={dictionary} />
         : <FirstStageRecommendations plotId={id} locale={locale} dictionary={dictionary} />}
     </div>
   );

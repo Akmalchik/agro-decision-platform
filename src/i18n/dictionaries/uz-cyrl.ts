@@ -165,4 +165,18 @@ export const uzCyrl = {
       "market.forecastPriceFavorable": "Прогноз нархи мақбул",
     },
   },
+  districtAnalytics: {
+    title: "Ҳудуд таҳлили",
+    demand: "Ҳудуд эҳтиёжи",
+    currentProduction: "Ҳозир ишлаб чиқарилмоқда",
+    shortage: "Етишмайди",
+    coverage: "Қопланиш даражаси",
+    allocatedArea: "Ажратилган майдон",
+    forecastPrice: "Прогноз нархи",
+    overproductionRisk: "Ортиқча ишлаб чиқариш хавфи",
+    tons: "тонна",
+    hectares: "га",
+    priceUnit: "сўм/кг",
+    levels: { LOW: "Паст", MEDIUM: "Ўртача", HIGH: "Юқори" },
+  },
 } satisfies Dictionary;

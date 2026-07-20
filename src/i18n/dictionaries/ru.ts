@@ -165,4 +165,18 @@ export const ru = {
       "market.forecastPriceFavorable": "Прогнозная цена приемлема",
     },
   },
+  districtAnalytics: {
+    title: "Аналитика района",
+    demand: "Потребность района",
+    currentProduction: "Производится сейчас",
+    shortage: "Дефицит",
+    coverage: "Уровень покрытия",
+    allocatedArea: "Выделенная площадь",
+    forecastPrice: "Прогнозная цена",
+    overproductionRisk: "Риск перепроизводства",
+    tons: "т",
+    hectares: "га",
+    priceUnit: "сум/кг",
+    levels: { LOW: "Низкий", MEDIUM: "Средний", HIGH: "Высокий" },
+  },
 } satisfies Dictionary;

@@ -165,4 +165,18 @@ export const uzLatn = {
       "market.forecastPriceFavorable": "Prognoz narxi maqbul",
     },
   },
+  districtAnalytics: {
+    title: "Hudud tahlili",
+    demand: "Hudud ehtiyoji",
+    currentProduction: "Hozir ishlab chiqarilmoqda",
+    shortage: "Yetishmaydi",
+    coverage: "Qoplanish darajasi",
+    allocatedArea: "Ajratilgan maydon",
+    forecastPrice: "Prognoz narxi",
+    overproductionRisk: "Ortiqcha ishlab chiqarish xavfi",
+    tons: "tonna",
+    hectares: "ga",
+    priceUnit: "so‘m/kg",
+    levels: { LOW: "Past", MEDIUM: "O‘rtacha", HIGH: "Yuqori" },
+  },
 } satisfies Dictionary;

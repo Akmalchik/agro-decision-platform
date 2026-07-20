@@ -110,4 +110,18 @@ export type Dictionary = {
     descriptions: Record<RecommendationStage, string>;
     reasonKeys: Record<ScenarioReasonKey, string>;
   };
+  districtAnalytics: {
+    title: string;
+    demand: string;
+    currentProduction: string;
+    shortage: string;
+    coverage: string;
+    allocatedArea: string;
+    forecastPrice: string;
+    overproductionRisk: string;
+    tons: string;
+    hectares: string;
+    priceUnit: string;
+    levels: Record<"LOW" | "MEDIUM" | "HIGH", string>;
+  };
 };
