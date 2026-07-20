@@ -42,10 +42,11 @@ export default async function PlotPage({ params }: PlotPageProps) {
 
   if (!plot || !geometry) notFound();
   const multiStageRecommendation = multiStageRecommendationService.getForCadastralNumber(plot.cadastralNumber);
-  const selectedCrop = multiStageRecommendation?.recommendations[0]?.cropCode;
-  const districtAnalytics = selectedCrop
-    ? piskentMvpDistrictAnalyticsSource.findByCadastralAndCrop(plot.cadastralNumber, selectedCrop)
-    : null;
+  const districtAnalytics = multiStageRecommendation
+    ? multiStageRecommendation.recommendations
+      .map((recommendation) => piskentMvpDistrictAnalyticsSource.findByCadastralAndCrop(plot.cadastralNumber, recommendation.cropCode))
+      .filter((analytics) => analytics !== null)
+    : [];
   const plotAnalytics = piskentMvpPlotAnalyticsSource.findByCadastralNumber(plot.cadastralNumber);
   const recommendationConfidence = piskentMvpRecommendationConfidenceSource.findByCadastralNumber(plot.cadastralNumber);
 

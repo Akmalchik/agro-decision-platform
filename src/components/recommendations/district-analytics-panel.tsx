@@ -44,16 +44,16 @@ export function DistrictAnalyticsPanel({ analytics, locale, dictionary, showMark
       </div>
 
       <div className={`mt-4 grid gap-3 sm:grid-cols-2 ${showMarketIndicators ? "xl:grid-cols-4" : "lg:grid-cols-2"}`}>
-        {showMarketIndicators ? <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{messages.demand}</p>
           <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-950">{formatNumber(analytics.requiredTons, intlLocale)} {messages.tons}</p>
           <dl className="mt-3 space-y-1 text-sm">
             <div className="flex justify-between gap-3"><dt className="text-slate-500">{messages.currentProduction}</dt><dd className="font-medium tabular-nums text-slate-800">{formatNumber(analytics.currentProduction, intlLocale)} {messages.tons}</dd></div>
             <div className="flex justify-between gap-3"><dt className="text-slate-500">{messages.shortage}</dt><dd className="font-semibold tabular-nums text-rose-700">{formatNumber(shortage, intlLocale)} {messages.tons} · {shortagePercent}%</dd></div>
           </dl>
-        </article> : null}
+        </article>
 
-        {showMarketIndicators ? <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-baseline justify-between gap-3">
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{messages.coverage}</p>
             <strong className="text-2xl font-semibold tabular-nums text-blue-900">{analytics.coveragePercent}%</strong>
@@ -62,22 +62,22 @@ export function DistrictAnalyticsPanel({ analytics, locale, dictionary, showMark
           <p className="mt-5 text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{messages.allocatedArea}</p>
           <p className="mt-1 font-semibold tabular-nums text-slate-900">{formatNumber(analytics.allocatedArea, intlLocale)} {messages.hectares} / {formatNumber(analytics.plannedArea, intlLocale)} {messages.hectares}</p>
           <Progress label={messages.allocatedArea} value={allocatedPercent} />
-        </article> : null}
+        </article>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        {showMarketIndicators ? <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{messages.forecastPrice}</p>
           <p className="mt-2 break-words text-2xl font-semibold tabular-nums text-slate-950">{formatNumber(analytics.forecastPrice, intlLocale)} {messages.priceUnit}</p>
           <span className={`mt-3 inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${statusClasses[analytics.forecastPriceLevel]}`}>
             {messages.levels[analytics.forecastPriceLevel]}
           </span>
-        </article>
+        </article> : null}
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        {showMarketIndicators ? <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{messages.overproductionRisk}</p>
           <span className={`mt-3 inline-flex rounded-full border px-3 py-1.5 text-sm font-bold ${statusClasses[analytics.overproductionRisk]}`}>
             {messages.levels[analytics.overproductionRisk]}
           </span>
-        </article>
+        </article> : null}
       </div>
     </section>
   );

@@ -105,6 +105,14 @@ export type Dictionary = {
     scoreUnit: string;
     topThree: string;
     reasons: string;
+    whyRecommended: string;
+    selectCrop: string;
+    selectedCrop: string;
+    keyMetrics: string;
+    districtMetrics: string;
+    marketMetrics: string;
+    finalScore: string;
+    noDistrictAnalytics: string;
     districtDistribution: string;
     analysisCompleteness: string;
     stages: Record<RecommendationStage, string>;
