@@ -32,7 +32,7 @@ export const postgisPlotGeoJsonSource: PlotGeoJsonSource = {
                 'specialization', p."specialization"
               )
             ) ORDER BY p."created_at"
-          ) FILTER (WHERE p."id" IS NOT NULL),
+          ) FILTER (WHERE p."geometry" IS NOT NULL),
           '[]'::jsonb
         ) AS "features",
         ST_YMin(ST_Extent(p."geometry")::box3d)::float8 AS "minLatitude",

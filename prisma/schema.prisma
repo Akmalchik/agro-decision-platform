@@ -14,21 +14,34 @@ model Plot {
   farmName        String                                  @map("farm_name")
   owner           String
   area            Decimal                                 @db.Decimal(12, 2)
-  geometry        Unsupported("geometry(Geometry, 4326)")
+  geometry        Unsupported("geometry(Geometry, 4326)")?
   specialization  String?
   taxId           String?                                 @map("tax_id")
   waterSupply     String?                                 @map("water_supply")
   previousCrop    String?                                 @map("previous_crop")
   lastHarvestDate DateTime?                               @map("last_harvest_date") @db.Date
   createdAt       DateTime                                @default(now()) @map("created_at")
+  farmId          String?                                 @map("farm_id") @db.Uuid
+  farm            Farm?                                   @relation(fields: [farmId], references: [id], onDelete: Restrict, map: "plots_farm_id_fkey")
   soilProfile     SoilProfile?
   recommendations Recommendation[]
   legacyRecommendations LegacyRecommendation[]
 
   @@index([farmName])
   @@index([taxId])
+  @@index([farmId])
   @@index([geometry], type: Gist, map: "plots_geometry_idx")
   @@map("plots")
+}
+
+model Farm {
+  id        String @id @default(uuid()) @db.Uuid
+  taxId     String @unique @map("tax_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  plots     Plot[]
+
+  @@map("farms")
 }
 
 model SoilProfile {

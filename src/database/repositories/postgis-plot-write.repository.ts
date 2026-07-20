@@ -60,7 +60,7 @@ export const postgisPlotWriteRepository: PlotWriteRepository = {
         ST_YMax(ST_Envelope("geometry")::box3d)::float8 AS "maxLatitude",
         ST_XMax(ST_Envelope("geometry")::box3d)::float8 AS "maxLongitude"
       FROM "plots"
-      WHERE "id" = ${id}::uuid
+      WHERE "id" = ${id}::uuid AND "geometry" IS NOT NULL
     `);
 
     return row ? { ...toMetrics(row), geometry: row.geometry as Polygon } : null;
@@ -71,10 +71,17 @@ export const postgisPlotWriteRepository: PlotWriteRepository = {
     const geometryJson = JSON.stringify(input.geometry);
 
     return prisma.$transaction(async (transaction) => {
+      const farm = await transaction.farm.upsert({
+        where: { taxId: input.taxId },
+        create: { taxId: input.taxId, name: input.farmName },
+        update: { name: input.farmName },
+        select: { id: true },
+      });
+
       const [created] = await transaction.$queryRaw<{ id: string }[]>(Prisma.sql`
         INSERT INTO "plots" (
           "id", "cadastral_number", "farm_name", "owner", "area", "geometry",
-          "tax_id", "water_supply", "previous_crop"
+          "tax_id", "farm_id", "water_supply", "previous_crop"
         )
         SELECT
           ${id}::uuid,
@@ -84,6 +91,7 @@ export const postgisPlotWriteRepository: PlotWriteRepository = {
           ROUND((ST_Area(g::geography) / 10000)::numeric, 2),
           g,
           ${input.taxId},
+          ${farm.id}::uuid,
           ${input.waterSupply},
           ${input.previousCrop}
         FROM (

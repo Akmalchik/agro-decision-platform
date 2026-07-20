@@ -3,11 +3,12 @@ import { notFound } from "next/navigation";
 import { PlotDetails } from "@/components/plots/plot-details";
 import { PlotGeometryMapShell } from "@/components/plots/plot-geometry-map-shell";
 import { FirstStageRecommendations } from "@/components/recommendations/first-stage-recommendations";
+import { MultiStageRecommendations } from "@/components/recommendations/multi-stage-recommendations";
 import { DataState } from "@/components/ui/data-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { localePathSegments } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n";
-import { plotService } from "@/services/composition-root";
+import { multiStageRecommendationService, plotService } from "@/services/composition-root";
 
 type PlotPageProps = { params: Promise<{ locale: string; id: string }> };
 
@@ -36,6 +37,7 @@ export default async function PlotPage({ params }: PlotPageProps) {
   }
 
   if (!plot || !geometry) notFound();
+  const multiStageRecommendation = multiStageRecommendationService.getForCadastralNumber(plot.cadastralNumber);
 
   return (
     <div className="space-y-6">
@@ -60,7 +62,9 @@ export default async function PlotPage({ params }: PlotPageProps) {
           <Link className="font-medium text-[var(--primary)]" href={mapHref}>← {dictionary.buttons.backToMap}</Link>
         </div>
       </section>
-      <FirstStageRecommendations plotId={id} locale={locale} dictionary={dictionary} />
+      {multiStageRecommendation
+        ? <MultiStageRecommendations result={multiStageRecommendation} dictionary={dictionary} />
+        : <FirstStageRecommendations plotId={id} locale={locale} dictionary={dictionary} />}
     </div>
   );
 }

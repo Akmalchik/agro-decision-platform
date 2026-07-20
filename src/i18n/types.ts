@@ -1,3 +1,5 @@
+import type { RecommendationStage, ScenarioReasonKey } from "@/modules/recommendations/domain/recommendation-scenario-source";
+
 export type Dictionary = {
   metadata: { title: string; description: string };
   languageNames: Record<"uz-Latn" | "uz-Cyrl" | "ru", string>;
@@ -95,5 +97,15 @@ export type Dictionary = {
     reasonsByKey: Record<string, string>;
     warningsByKey: Record<string, string>;
     errors: Record<"PLOT_NOT_FOUND" | "MISSING_BONITET" | "MISSING_WATER_SUPPLY" | "MISSING_PREVIOUS_CROP" | "NO_ACTIVE_CROPS" | "CALCULATION_FAILED", string>;
+  };
+  multiStageRecommendation: {
+    title: string;
+    stage: string;
+    topThree: string;
+    reasons: string;
+    districtDistribution: string;
+    stages: Record<RecommendationStage, string>;
+    descriptions: Record<RecommendationStage, string>;
+    reasonKeys: Record<ScenarioReasonKey, string>;
   };
 };
