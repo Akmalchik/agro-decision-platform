@@ -24,7 +24,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     <>
       <LocaleDocument locale={locale} />
       <AppHeader locale={locale} dictionary={dictionary} />
-      <main className="mx-auto min-h-[calc(100vh-65px)] max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+      <main className="mx-auto min-h-[calc(100vh-65px)] max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">{children}</main>
     </>
   );
 }

@@ -49,7 +49,7 @@ export type FirstStageRecommendationItem = {
 };
 
 export type FirstStageRecommendationResult = {
-  recommendationId: string;
+  recommendationId: string | null;
   plotId: string;
   stage: typeof FIRST_STAGE;
   calculatedAt: string;

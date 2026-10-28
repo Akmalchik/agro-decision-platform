@@ -126,16 +126,16 @@ export function FirstStageRecommendations({ plotId, locale, dictionary }: Props)
   const planningMessages = getPlanningMessages(locale);
   const messages = dictionary.recommendation;
 
-  async function calculate() {
+  async function calculate(persist = false) {
     setIsLoading(true);
     setErrorCode(null);
 
     try {
-      const response = await fetch("/api/recommendations/first-stage", {
+      const response = await fetch(persist ? "/api/recommendations/first-stage" : `/api/recommendations/preview?plotId=${encodeURIComponent(plotId)}`, persist ? {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessKey}` },
         body: JSON.stringify({ plotId }),
-      });
+      } : { cache: "no-store" });
       const payload = await response.json() as ApiResponse<FirstStageRecommendationResult>;
 
       if (!response.ok || payload.error) {
@@ -165,7 +165,7 @@ export function FirstStageRecommendations({ plotId, locale, dictionary }: Props)
         <button
           className="min-h-11 shrink-0 rounded-xl bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-emerald-700 disabled:cursor-wait disabled:opacity-65"
           type="button"
-          onClick={calculate}
+          onClick={() => calculate()}
           disabled={isLoading}
           aria-busy={isLoading}
           aria-controls="recommendation-results"
@@ -174,8 +174,7 @@ export function FirstStageRecommendations({ plotId, locale, dictionary }: Props)
         </button>
       </div>
 
-      <label className="mt-4 block text-sm">{planningMessages.key}<input className="mt-1 block w-full rounded-lg border bg-white p-2" type="password" autoComplete="off" value={accessKey} onChange={(e) => setAccessKey(e.target.value)} /></label>
-      <p className="mt-2 text-xs text-slate-600">{planningMessages.keyHint}</p>
+      <details className="mt-4 text-sm"><summary>{planningMessages.key}</summary><label className="mt-3 block">{planningMessages.key}<input className="mt-1 block w-full rounded-lg border bg-white p-2" type="password" autoComplete="off" value={accessKey} onChange={(e) => setAccessKey(e.target.value)} /></label><p className="mt-2 text-xs text-slate-600">{planningMessages.keyHint}</p><button type="button" disabled={isLoading} className="mt-2 rounded-lg border p-2" onClick={() => calculate(true)}>{planningMessages.save}</button></details>
       {errorCode ? <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">{errorCode === "UNAUTHORIZED" || errorCode === "WRITES_NOT_CONFIGURED" ? planningMessages.credentials : errorMessage}</p> : null}
       {isLoading ? <RecommendationSkeleton label={messages.calculating} /> : null}
 

@@ -41,7 +41,10 @@ export class FirstStageRecommendationError extends Error {
 export class FirstStageRecommendationService {
   constructor(private readonly plots: PlotRepository, private readonly recommendations: RecommendationRepository) {}
 
-  async calculate(plotId: string) {
+  async calculate(plotId: string) { return this.evaluate(plotId, true); }
+  async preview(plotId: string) { return this.evaluate(plotId, false); }
+
+  private async evaluate(plotId: string, persist: boolean) {
     const plot = await this.plots.findById(plotId);
     if (!plot) throw new FirstStageRecommendationError("PLOT_NOT_FOUND");
 
@@ -101,14 +104,15 @@ export class FirstStageRecommendationService {
       .sort((left, right) => right.finalScore - left.finalScore || left.cropCode.localeCompare(right.cropCode))
       .map((item, index) => ({ ...item, rank: index + 1 }));
 
-    const saved = await this.recommendations.saveFirstStageCalculation({
+    const eligibleItems = rankedItems.filter((item) => item.eligible).map((item, index) => ({ ...item, rank: index + 1 }));
+    const saved = persist ? await this.recommendations.saveFirstStageCalculation({
       plotId,
       bonitet,
       waterSupply,
       previousCrop: previousCrop ?? "BOSHQA",
       calculatedAt,
-      rankedItems: rankedItems.filter((item) => item.eligible).map((item, index) => ({ ...item, rank: index + 1 })),
-    });
+      rankedItems: eligibleItems,
+    }) : { recommendationId: null, plotId, stage: FIRST_STAGE, calculatedAt: calculatedAt.toISOString(), algorithmVersion: FIRST_STAGE_ALGORITHM_VERSION, items: eligibleItems.slice(0, 3) };
     return { ...saved, excluded: rankedItems.filter((item) => !item.eligible).map((item) => ({ cropCode: item.cropCode, reasons: item.exclusions })) };
   }
 }

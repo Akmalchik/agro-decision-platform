@@ -48,12 +48,25 @@ async function main() {
   assert.equal((await post("/api/plots/geometry", polygon)).response.status, 200);
   const created = await post("/api/plots", { geometry: polygon, cadastralNumber: `test-${Date.now()}`, taxId: "test-isolated", farmName: "Isolated verification", bonitet: 70, waterSupply: "LOW", previousCrop: "OTHER" });
   assert.equal(created.response.status, 201);
+  const preview = await fetch(`${base}/api/recommendations/preview?plotId=${created.payload.data.id}`);
+  assert.equal(preview.status, 200);
+  const previewData = (await preview.json()).data;
+  assert.equal(previewData.recommendationId, null);
+  assert.equal(await db.recommendation.count({ where: { plotId: created.payload.data.id } }), 0);
   const recommendation = await post("/api/recommendations/first-stage", { plotId: created.payload.data.id });
   assert.equal(recommendation.response.status, 200);
+  assert.deepEqual(previewData.items.map((row: { cropCode: string; finalScore: number }) => [row.cropCode, row.finalScore]), recommendation.payload.data.items.map((row: { cropCode: string; finalScore: number }) => [row.cropCode, row.finalScore]));
   assert.ok(recommendation.payload.data.excluded.some((row: { reasons: string[] }) => row.reasons.includes("water.insufficient")));
   assert.ok(recommendation.payload.data.items.every((row: { rotationScore: number | null }) => row.rotationScore === null));
   assert.equal(await db.recommendation.count({ where: { plotId: created.payload.data.id } }), 1);
-  for (const locale of ["ru", "uz-latn", "uz-cyrl"]) for (const page of ["", "/map", "/planning"]) assert.equal((await fetch(base + "/" + locale + page)).status, 200);
+  const historyCount = await db.recommendation.count();
+  for (const locale of ["ru", "uz-latn", "uz-cyrl"]) for (const page of ["", "/map", "/planning", "/demo"]) {
+    const response = await fetch(base + "/" + locale + page); assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.ok(!html.includes(key), "Operator secret must never be serialized to public HTML");
+    if (page === "" || page === "/demo") { assert.ok(html.includes("presentation-page")); assert.ok(!html.includes('type="password"')); }
+  }
+  assert.equal(await db.recommendation.count(), historyCount, "Dashboard and demo views cannot save recommendations");
   console.info("Isolated PostGIS integration passed: auth, malformed JSON, all locales, map geometry, nullable geometry, plan persistence/revision/area checks, forecast recalculation and recommendation history.");
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => db.$disconnect());
