@@ -60,13 +60,21 @@ async function main() {
   assert.ok(recommendation.payload.data.items.every((row: { rotationScore: number | null }) => row.rotationScore === null));
   assert.equal(await db.recommendation.count({ where: { plotId: created.payload.data.id } }), 1);
   const historyCount = await db.recommendation.count();
-  for (const locale of ["ru", "uz-latn", "uz-cyrl"]) for (const page of ["", "/map", "/planning", "/demo"]) {
+  for (const locale of ["ru", "uz", "uz-latn", "uz-cyrl"]) for (const page of ["", "/map", "/planning", "/demo"]) {
     const response = await fetch(base + "/" + locale + page); assert.equal(response.status, 200);
     const html = await response.text();
     assert.ok(!html.includes(key), "Operator secret must never be serialized to public HTML");
-    if (page === "" || page === "/demo") { assert.ok(html.includes("presentation-page")); assert.ok(!html.includes('type="password"')); }
+    if (page === "" || page === "/demo") { assert.ok(html.includes(page === "/demo" ? "classic-demo" : "Smart Ekin")); assert.ok(!html.includes('type="password"')); }
   }
-  assert.equal(await db.recommendation.count(), historyCount, "Dashboard and demo views cannot save recommendations");
+    for (const path of ["/toshkent", "/toshkent?district=PISKENT&product=KARTOSHKA", "/toshkent?district=toString"]) {
+      const response = await fetch(base + path);
+      assert.equal(response.status, 200);
+      const html = await response.text();
+      assert.ok(html.includes("Toshkent viloyati"));
+      assert.ok(!html.includes(key));
+      assert.ok(!html.includes('type="password"'));
+    }
+    assert.equal(await db.recommendation.count(), historyCount, "Dashboard and demo views cannot save recommendations");
   console.info("Isolated PostGIS integration passed: auth, malformed JSON, all locales, map geometry, nullable geometry, plan persistence/revision/area checks, forecast recalculation and recommendation history.");
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => db.$disconnect());

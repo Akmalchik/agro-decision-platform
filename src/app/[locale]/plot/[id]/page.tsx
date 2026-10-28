@@ -1,3 +1,5 @@
+import { RegionalBreadcrumb } from "@/components/regional/regional-breadcrumb";
+import { regionalContext } from "@/modules/regional/demo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PlotDetails } from "@/components/plots/plot-details";
@@ -14,18 +16,20 @@ import { getPlanningMessages } from "@/i18n/planning";
 import { plotIdSchema } from "@/api/schemas/plot.schema";
 import { multiStageRecommendationService, plotService } from "@/services/composition-root";
 
-type PlotPageProps = { params: Promise<{ locale: string; id: string }> };
+type PlotPageProps = { params: Promise<{ locale: string; id: string }>; searchParams: Promise<{ from?: string; product?: string }> };
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default async function PlotPage({ params }: PlotPageProps) {
+export default async function PlotPage({ params, searchParams }: PlotPageProps) {
+  const query = await searchParams;
+  const contextQuery = query.from === "toshkent" ? regionalContext(query.product) : undefined;
   const { locale: segment, id } = await params;
   const locale = getLocale(segment);
   const dictionary = getDictionary(locale);
   const messages = getPlanningMessages(locale);
   if (!plotIdSchema.safeParse(id).success) notFound();
-  const mapHref = `/${localePathSegments[locale]}/map`;
+  const mapHref = `/${localePathSegments[locale]}/map${contextQuery ? `?${contextQuery}` : ""}`;
   let plot;
   let geometry;
 
@@ -35,7 +39,8 @@ export default async function PlotPage({ params }: PlotPageProps) {
     console.warn(`Unable to load plot ${id}.`, error);
     return (
       <div className="space-y-6">
-        <PageHeader title={dictionary.plot.title} description={`${dictionary.plot.identifier}: ${id}`} />
+        <RegionalBreadcrumb contextQuery={contextQuery} product={query.product} />
+      <PageHeader title={dictionary.plot.title} description={`${dictionary.plot.identifier}: ${id}`} />
         <DataState title={dictionary.databaseError.plotTitle} description={dictionary.databaseError.plotDescription} />
         <Link className="inline-block font-medium text-[var(--primary)]" href={mapHref}>← {dictionary.buttons.backToMap}</Link>
       </div>
@@ -61,6 +66,7 @@ export default async function PlotPage({ params }: PlotPageProps) {
 
   return (
     <div className="space-y-6">
+      <RegionalBreadcrumb contextQuery={contextQuery} product={query.product} />
       <PageHeader title={dictionary.plot.title} description={plot.farmName} />
       {geometry ? <PlotGeometryMapShell details={geometry} dictionary={dictionary} /> : <p>{messages.noGeometry}</p>}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">

@@ -36,7 +36,7 @@ const SELECTED_STYLE: PathOptions = {
   weight: 4,
 };
 
-export function PlotMap({ dataset, locale, dictionary }: { dataset: PlotMapDataset; locale: Locale; dictionary: Dictionary }) {
+export function PlotMap({ dataset, locale, dictionary, contextQuery }: { dataset: PlotMapDataset; locale: Locale; dictionary: Dictionary; contextQuery?: string }) {
   const [selectedPlot, setSelectedPlot] = useState<PlotMapProperties | null>(null);
   const [draftGeometry, setDraftGeometry] = useState<Polygon | null>(null);
   const [metrics, setMetrics] = useState<PlotGeometryMetrics | null>(null);
@@ -146,7 +146,7 @@ export function PlotMap({ dataset, locale, dictionary }: { dataset: PlotMapDatas
       {isCalculating ? <p className="border-t border-[var(--border)] p-4 text-sm text-slate-600" role="status">{dictionary.creation.calculating}</p> : null}
       {geometryError ? <p className="border-t border-[var(--border)] p-4 text-sm text-red-700" role="alert">{dictionary.creation.invalidGeometry}</p> : null}
       {draftGeometry && metrics ? <PlotCreationForm geometry={draftGeometry} metrics={metrics} locale={locale} dictionary={dictionary} onCancel={cancelCreation} /> : null}
-      {selectedPlot ? <MapPlotCard plot={selectedPlot} locale={locale} dictionary={dictionary} /> : null}
+      {selectedPlot ? <MapPlotCard plot={selectedPlot} locale={locale} dictionary={dictionary} contextQuery={contextQuery} /> : null}
     </div>
   );
 }

@@ -10,10 +10,10 @@ const PlotMap = dynamic(() => import("@/gis/components/plot-map").then((module) 
   loading: () => <div className="h-[560px] animate-pulse rounded-2xl bg-slate-200" aria-hidden="true" />,
 });
 
-export function MapShell({ dataset, locale, dictionary }: { dataset: PlotMapDataset; locale: Locale; dictionary: Dictionary }) {
+export function MapShell({ dataset, locale, dictionary, contextQuery }: { dataset: PlotMapDataset; locale: Locale; dictionary: Dictionary; contextQuery?: string }) {
   return (
     <div aria-label={dictionary.loading.map}>
-      <PlotMap dataset={dataset} locale={locale} dictionary={dictionary} />
+      <PlotMap dataset={dataset} locale={locale} dictionary={dictionary} contextQuery={contextQuery} />
     </div>
   );
 }

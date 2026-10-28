@@ -22,5 +22,6 @@ export function isLocale(value: string): value is Locale {
 }
 
 export function localeFromPathSegment(segment: string): Locale | null {
+  if (segment.toLowerCase() === "uz") return "uz-Latn";
   return locales.find((locale) => localePathSegments[locale] === segment.toLowerCase()) ?? null;
 }

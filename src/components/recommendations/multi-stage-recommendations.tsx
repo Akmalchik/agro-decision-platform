@@ -147,12 +147,14 @@ export function MultiStageRecommendations({
   districtAnalytics,
   locale,
   dictionary,
+  showScenarioAnalytics = true,
 }: {
   result: RecommendationResult;
   plotAnalytics: PlotAnalytics | null;
   districtAnalytics: DistrictAnalytics[];
   locale: Locale;
   dictionary: Dictionary;
+  showScenarioAnalytics?: boolean;
 }) {
   const messages = dictionary.multiStageRecommendation;
   const [selectedCrop, setSelectedCrop] = useState<CropCode>(result.recommendations[0]?.cropCode);
@@ -199,7 +201,7 @@ export function MultiStageRecommendations({
       </div>
 
       {plotAnalytics ? <PlotAnalyticsPanel analytics={plotAnalytics} locale={locale} dictionary={dictionary} /> : null}
-      {result.stage !== "FIRST_STAGE" && selectedDistrictAnalytics
+      {showScenarioAnalytics && result.stage !== "FIRST_STAGE" && selectedDistrictAnalytics
         ? <DistrictAnalyticsPanel analytics={selectedDistrictAnalytics} locale={locale} dictionary={dictionary} showMarketIndicators={result.stage === "FOURTH_STAGE"} />
         : null}
 
@@ -265,8 +267,8 @@ export function MultiStageRecommendations({
           districtAnalytics={selectedDistrictAnalytics}
           locale={locale}
           dictionary={dictionary}
-          showDistrictMetrics={result.stage !== "FIRST_STAGE"}
-          showMarketMetrics={result.stage === "FOURTH_STAGE"}
+          showDistrictMetrics={showScenarioAnalytics && result.stage !== "FIRST_STAGE"}
+          showMarketMetrics={showScenarioAnalytics && result.stage === "FOURTH_STAGE"}
         />
       </div>
     </section>

@@ -1,0 +1,22 @@
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+const input=process.argv[2];
+if(!input)throw new Error('Pass the downloaded geoBoundaries UZB ADM2 GeoJSON path');
+const source=JSON.parse(await readFile(input,'utf8'));
+const names=[['Bekabad','BEKOBOD','Bekobod'],['Buka','BUKA','Bo‘ka'],['Bostanlik','BOSTONLIQ','Bo‘stonliq'],['Chinaz','CHINOZ','Chinoz'],['Akhangaran','OHANGARON','Ohangaron'],['Akkurgan','OQQORGON','Oqqo‘rg‘on'],['Parkent','PARKENT','Parkent'],['Pskent','PISKENT','Piskent'],['Kibray','QIBRAY','Qibray'],['Kuyichirchik','QUYICHIRCHIQ','Quyichirchiq'],['Urtachirchik','ORTACHIRCHIQ','O‘rtachirchiq'],['Tashkent','TOSHKENT','Toshkent'],['Yangiyul','YANGIYOL','Yangiyo‘l'],['Yukarichirchik','YUQORICHIRCHIQ','Yuqorichirchiq'],['Zangiata','ZANGIOTA','Zangiota']];
+const cities=['Almalik city','Akhangaran city','Angren city','Bekabad city','Chirchik city','Yangiyul city','Nurafshon city'];
+const features=[...names.map(([raw,id,name])=>{const f=source.features.find(f=>f.properties.shapeName===raw);if(!f)throw new Error('Missing '+raw);return{...f,id,name,kind:'district'};}),...cities.map(raw=>{const f=source.features.find(f=>f.properties.shapeName===raw);if(!f)throw new Error('Missing '+raw);return{...f,id:raw.toUpperCase().replaceAll(' ','_'),name:({'Almalik city':'Olmaliq shahri','Akhangaran city':'Ohangaron shahri','Angren city':'Angren shahri','Bekabad city':'Bekobod shahri','Chirchik city':'Chirchiq shahri','Yangiyul city':'Yangiyo‘l shahri','Nurafshon city':'Nurafshon shahri'})[raw],kind:'city'};})];
+const polygons=f=>f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
+const points=features.flatMap(f=>polygons(f).flat(2));
+const latCenter=(Math.min(...points.map(p=>p[1]))+Math.max(...points.map(p=>p[1])))/2;
+const cos=Math.cos(latCenter*Math.PI/180);
+const projected=points.map(([x,y])=>[x*cos,-y]);
+const minX=Math.min(...projected.map(p=>p[0])),maxX=Math.max(...projected.map(p=>p[0])),minY=Math.min(...projected.map(p=>p[1])),maxY=Math.max(...projected.map(p=>p[1]));
+const width=900,height=680,pad=25,scale=Math.min((width-pad*2)/(maxX-minX),(height-pad*2)/(maxY-minY));
+const offsetX=(width-(maxX-minX)*scale)/2,offsetY=(height-(maxY-minY)*scale)/2;
+const project=([x,y])=>[(x*cos-minX)*scale+offsetX,(-y-minY)*scale+offsetY];
+const area=ring=>ring.reduce((a,p,i)=>{const q=ring[(i+1)%ring.length];return a+p[0]*q[1]-q[0]*p[1];},0)/2;
+function label(f){const outer=polygons(f).map(p=>p[0].map(project)).sort((a,b)=>Math.abs(area(b))-Math.abs(area(a)))[0];let x=0,y=0;for(let i=0;i<outer.length;i++){const p=outer[i],q=outer[(i+1)%outer.length],v=p[0]*q[1]-q[0]*p[1];x+=(p[0]+q[0])*v;y+=(p[1]+q[1])*v;}const divisor=6*area(outer);return[+(x/divisor).toFixed(1),+(y/divisor).toFixed(1)];}
+const districts=features.map(f=>({id:f.id,name:f.name,kind:f.kind,label:label(f),path:polygons(f).map(p=>p.map(r=>r.map((xy,i)=>{const[x,y]=project(xy);return(i?'L':'M')+x.toFixed(1)+','+y.toFixed(1);}).join('')+'Z').join('')).join('')}));
+const output={width,height,source:{provider:'geoBoundaries / OCHA ROCCA',year:'2020',boundaryId:'UZB-ADM2-79887680',license:'CC BY 3.0 IGO',licenseUrl:'https://creativecommons.org/licenses/by/3.0/igo/',url:'https://www.geoboundaries.org/api/current/gbOpen/UZB/ADM2/',download:'https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/UZB/ADM2/geoBoundaries-UZB-ADM2_simplified.geojson'},districts};
+await mkdir('src/modules/regional/data',{recursive:true});await writeFile('src/modules/regional/data/toshkent-map.json',JSON.stringify(output));
+console.log(JSON.stringify({districts:names.length,cities:cities.length,bytes:JSON.stringify(output).length}));
