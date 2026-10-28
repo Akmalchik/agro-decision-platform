@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-const positionSchema = z.tuple([z.number(), z.number()]);
+const positionSchema = z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]);
 
-const linearRingSchema = z.array(positionSchema).min(4).refine(
+const linearRingSchema = z.array(positionSchema).min(4).max(10000).refine(
   (ring) => {
     const first = ring[0];
     const last = ring.at(-1);
@@ -13,7 +13,7 @@ const linearRingSchema = z.array(positionSchema).min(4).refine(
 
 export const polygonSchema = z.object({
   type: z.literal("Polygon"),
-  coordinates: z.array(linearRingSchema).min(1),
+  coordinates: z.array(linearRingSchema).min(1).max(100),
 });
 
 export const plotMapPropertiesSchema = z.object({

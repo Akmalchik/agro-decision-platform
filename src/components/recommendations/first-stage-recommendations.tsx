@@ -5,6 +5,7 @@ import { intlLocales, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/types";
 import type { FirstStageRecommendationItem, FirstStageRecommendationResult } from "@/modules/recommendations/domain/first-stage-recommendation";
 import type { ApiResponse } from "@/types/api";
+import { getPlanningMessages } from "@/i18n/planning";
 
 type Props = { plotId: string; locale: Locale; dictionary: Dictionary };
 
@@ -69,7 +70,7 @@ function RecommendationCard({ item, messages }: { item: FirstStageRecommendation
       <div className={`mt-6 grid gap-4 ${isPrimary ? "sm:grid-cols-3" : ""}`} aria-label={messages.components}>
         <ScoreBar label={messages.bonitet} value={item.bonitetScore} prominent={isPrimary} />
         <ScoreBar label={messages.water} value={item.waterScore} prominent={isPrimary} />
-        <ScoreBar label={messages.rotation} value={item.rotationScore} prominent={isPrimary} />
+        {item.rotationScore !== null ? <ScoreBar label={messages.rotation} value={item.rotationScore} prominent={isPrimary} /> : <p className="text-sm text-amber-900">{messages.warningsByKey["rotation.insufficientData"]}</p>}
       </div>
 
       <div className="mt-6 border-t border-slate-100 pt-5">
@@ -88,7 +89,7 @@ function RecommendationCard({ item, messages }: { item: FirstStageRecommendation
         <aside className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
           <h4 className="flex items-center gap-2 text-sm font-semibold"><span aria-hidden="true">!</span>{messages.attention}</h4>
           <ul className="mt-2 space-y-1.5 pl-5 text-sm leading-5">
-            {item.warningKeys.map((key) => <li className="list-disc" key={key}>{messages.warningsByKey[key]}</li>)}
+            {item.warningKeys.map((key) => <li className="list-disc" key={key}>{messages.warningsByKey[key] ?? messages.reasonsByKey[key]}</li>)}
           </ul>
         </aside>
       ) : null}
@@ -121,6 +122,8 @@ export function FirstStageRecommendations({ plotId, locale, dictionary }: Props)
   const [result, setResult] = useState<FirstStageRecommendationResult | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [accessKey, setAccessKey] = useState("");
+  const planningMessages = getPlanningMessages(locale);
   const messages = dictionary.recommendation;
 
   async function calculate() {
@@ -130,7 +133,7 @@ export function FirstStageRecommendations({ plotId, locale, dictionary }: Props)
     try {
       const response = await fetch("/api/recommendations/first-stage", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessKey}` },
         body: JSON.stringify({ plotId }),
       });
       const payload = await response.json() as ApiResponse<FirstStageRecommendationResult>;
@@ -171,11 +174,16 @@ export function FirstStageRecommendations({ plotId, locale, dictionary }: Props)
         </button>
       </div>
 
-      {errorCode ? <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">{errorMessage}</p> : null}
+      <label className="mt-4 block text-sm">{planningMessages.key}<input className="mt-1 block w-full rounded-lg border bg-white p-2" type="password" autoComplete="off" value={accessKey} onChange={(e) => setAccessKey(e.target.value)} /></label>
+      <p className="mt-2 text-xs text-slate-600">{planningMessages.keyHint}</p>
+      {errorCode ? <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">{errorCode === "UNAUTHORIZED" || errorCode === "WRITES_NOT_CONFIGURED" ? planningMessages.credentials : errorMessage}</p> : null}
       {isLoading ? <RecommendationSkeleton label={messages.calculating} /> : null}
 
       {!isLoading && result ? (
         <div id="recommendation-results" className="mt-6" aria-live="polite">
+          {result.items.length === 0 ? <p>{planningMessages.noEligible}</p> : null}
+          <p className="mb-4 text-sm text-slate-600">{planningMessages.basis}</p>
+          {result.excluded?.length ? <aside className="mb-4 rounded-lg bg-amber-50 p-3"><strong>{planningMessages.excluded}</strong><ul>{result.excluded.map((item) => <li key={item.cropCode}>{messages.cropNames[item.cropCode]}: {item.reasons.map((reason) => reason === "water.insufficient" ? planningMessages.waterLow : reason === "bonitet.belowMinimum" ? planningMessages.below : planningMessages.rotationRestricted).join("; ")}</li>)}</ul></aside> : null}
           <div className="grid items-start gap-5 lg:grid-cols-2">
             {result.items.map((item) => <RecommendationCard key={item.cropCode} item={item} messages={messages} />)}
           </div>

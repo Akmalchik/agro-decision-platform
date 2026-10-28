@@ -10,6 +10,7 @@ import { previousCropValues, waterSupplyValues } from "@/modules/plots/domain/pl
 import type { PlotLookupMethod, PlotLookupRecord } from "@/modules/plots/domain/plot-lookup-source";
 import type { ApiResponse } from "@/types/api";
 import { formatDate, formatNumber } from "@/utils/format";
+import { getPlanningMessages } from "@/i18n/planning";
 
 type PlotCreationFormProps = {
   geometry: Polygon;
@@ -19,10 +20,12 @@ type PlotCreationFormProps = {
   onCancel: () => void;
 };
 
-type LookupStatus = "idle" | "found" | "not-found";
+type LookupStatus = "idle" | "found" | "not-found" | "error";
 
 export function PlotCreationForm({ geometry, metrics, locale, dictionary, onCancel }: PlotCreationFormProps) {
   const router = useRouter();
+  const messages = getPlanningMessages(locale);
+  const [accessKey, setAccessKey] = useState("");
   const sectionRef = useRef<HTMLElement>(null);
   const [method, setMethod] = useState<PlotLookupMethod>("CADASTRAL_NUMBER");
   const [lookupValue, setLookupValue] = useState("");
@@ -81,7 +84,7 @@ export function PlotCreationForm({ geometry, metrics, locale, dictionary, onCanc
       setTaxId(method === "TAX_ID" ? lookupValue.trim() : "");
       setFarmName("");
       setBonitet("");
-      setLookupStatus("not-found");
+      setLookupStatus("error");
     } finally {
       setIsLookingUp(false);
     }
@@ -96,7 +99,7 @@ export function PlotCreationForm({ geometry, metrics, locale, dictionary, onCanc
     try {
       const response = await fetch("/api/plots", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessKey}` },
         body: JSON.stringify({
           geometry,
           cadastralNumber,
@@ -108,10 +111,10 @@ export function PlotCreationForm({ geometry, metrics, locale, dictionary, onCanc
         }),
       });
       const result = await response.json() as ApiResponse<{ id: string }>;
-      if (!response.ok || !result.data) throw new Error("CREATE_FAILED");
+      if (!response.ok || !result.data) throw new Error(response.status === 401 || response.status === 503 ? messages.credentials : dictionary.creation.saveError);
       router.push(`/${localePathSegments[locale]}/plot/${result.data.id}`);
-    } catch {
-      setError(dictionary.creation.saveError);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : dictionary.creation.saveError);
       setIsSaving(false);
     }
   };
@@ -122,6 +125,7 @@ export function PlotCreationForm({ geometry, metrics, locale, dictionary, onCanc
   return (
     <section ref={sectionRef} className="scroll-mt-24 border-t border-[var(--border)] bg-white p-6" aria-labelledby="plot-creation-title">
       <h2 id="plot-creation-title" className="text-xl font-semibold">{dictionary.creation.formTitle}</h2>
+      <p className="mt-2 text-sm text-amber-900">{messages.demoLookup}</p>
       <dl className="mt-4 grid gap-3 rounded-lg bg-slate-50 p-4 text-sm sm:grid-cols-3">
         <div><dt className="text-slate-500">{dictionary.creation.area}</dt><dd className="font-medium">{formatNumber(metrics.areaHectares, numberLocale)} {dictionary.units.hectare}</dd></div>
         <div><dt className="text-slate-500">{dictionary.creation.center}</dt><dd className="font-medium">{metrics.center.map((value) => formatNumber(value, numberLocale)).join(", ")}</dd></div>
@@ -156,6 +160,7 @@ export function PlotCreationForm({ geometry, metrics, locale, dictionary, onCanc
         <p className="mt-1 text-xs text-slate-500">{dictionary.creation.lookupHint}</p>
         {lookupStatus === "found" ? <p className="mt-2 text-sm font-medium text-emerald-700" role="status">✓ {dictionary.creation.dataFound}</p> : null}
         {lookupStatus === "not-found" ? <p className="mt-2 text-sm text-amber-700" role="status">{dictionary.creation.dataNotFound}</p> : null}
+        {lookupStatus === "error" ? <p role="alert" className="mt-2 text-red-700">{messages.error}</p> : null}
       </div>
 
       <form className="mt-5 grid gap-4 sm:grid-cols-2" onSubmit={submit}>
@@ -165,12 +170,13 @@ export function PlotCreationForm({ geometry, metrics, locale, dictionary, onCanc
         <label className="text-sm font-medium">
           {dictionary.creation.bonitet}
           <input className={foundFieldClass} value={bonitet} onChange={(event) => setBonitet(event.target.value)} type="number" required min={0} max={100} step="0.01" readOnly={hasOfficialBonitet} />
-          <span className={`mt-1 block text-xs ${hasOfficialBonitet ? "text-emerald-700" : "text-slate-500"}`}>{hasOfficialBonitet ? dictionary.creation.officialData : dictionary.creation.manualData}</span>
+          <span className="mt-1 block text-xs text-amber-900">{hasOfficialBonitet ? messages.demoLookup : dictionary.creation.manualData}</span>
           {hasOfficialBonitet && lookupRecord?.bonitetSource ? <span className="block text-xs text-slate-500">{dictionary.creation.source}: {lookupRecord.bonitetSource}</span> : null}
           {hasOfficialBonitet && lookupRecord?.bonitetValidAt ? <span className="block text-xs text-slate-500">{dictionary.creation.validAt}: {formatDate(lookupRecord.bonitetValidAt, numberLocale)}</span> : null}
         </label>
         <label className="text-sm font-medium">{dictionary.creation.waterSupply}<select className={fieldClass} name="waterSupply" required defaultValue=""><option value="" disabled>—</option>{waterSupplyValues.map((value) => <option key={value} value={value}>{dictionary.creation.waterOptions[value]}</option>)}</select></label>
         <label className="text-sm font-medium sm:col-span-2">{dictionary.creation.previousCrop}<select className={fieldClass} name="previousCrop" required defaultValue=""><option value="" disabled>—</option>{previousCropValues.map((value) => <option key={value} value={value}>{dictionary.creation.cropOptions[value]}</option>)}</select></label>
+        <label className="text-sm sm:col-span-2">{messages.key}<input className={fieldClass} type="password" autoComplete="off" value={accessKey} onChange={(event) => setAccessKey(event.target.value)} required /><span className="text-xs text-slate-500">{messages.keyHint}</span></label>
         {error ? <p className="text-sm text-red-700 sm:col-span-2" role="alert">{error}</p> : null}
         <div className="flex gap-3 sm:col-span-2">
           <button className="rounded-lg bg-[var(--primary)] px-4 py-2.5 font-medium text-white disabled:opacity-60" type="submit" disabled={isSaving}>{dictionary.creation.save}</button>

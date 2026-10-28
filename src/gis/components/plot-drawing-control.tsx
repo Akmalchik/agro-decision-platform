@@ -31,13 +31,14 @@ export function PlotDrawingControl({ startToken, resetToken, dictionary, onGeome
 
   useEffect(() => {
     map.pm.setLang("en", {
-      tooltips: { finishPoly: dictionary.creation.finishPolygon },
+      tooltips: { finishPoly: dictionary.creation.finishPolygon, firstVertex: dictionary.creation.drawingHint, continueLine: dictionary.creation.drawingHint, finishLine: dictionary.creation.finishPolygon },
       actions: {
         finish: dictionary.creation.finishPolygon,
         cancel: dictionary.creation.cancel,
         removeLastVertex: dictionary.creation.removeVertex,
       },
       buttonTitles: {
+        drawPolyButton: dictionary.creation.createPlot,
         editButton: dictionary.creation.editPolygon,
         deleteButton: dictionary.creation.deletePolygon,
       },

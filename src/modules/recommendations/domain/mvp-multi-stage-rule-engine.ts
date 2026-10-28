@@ -1,6 +1,8 @@
 import type { CropCode, PreviousCropCode, WaterLevel } from "@/modules/recommendations/domain/first-stage-recommendation";
 import type { RecommendationScenario, ScenarioReasonKey } from "@/modules/recommendations/domain/recommendation-scenario-source";
 import { calculateBonitetScore, calculateWaterScore } from "@/modules/recommendations/domain/scoring";
+import { evaluateCrop } from "./eligibility";
+import type { RecommendationCrop, RotationRule } from "./first-stage-recommendation";
 
 type CropRule = {
   code: CropCode;
@@ -63,7 +65,7 @@ function collectReasons(
   return reasons;
 }
 
-export function calculateMvpMultiStageRecommendations(scenario: RecommendationScenario) {
+export function calculateLegacyMvpMultiStageRecommendations(scenario: RecommendationScenario) {
   const plot = scenario.inputs.plot;
 
   return cropRules.map((rule) => {
@@ -87,5 +89,25 @@ export function calculateMvpMultiStageRecommendations(scenario: RecommendationSc
         stage: stageScore,
       }),
     };
+  });
+}
+
+// Legacy scenario calculation is retained above for comparison and rollback.
+// The user-facing path separates suitability from district/market forecasting.
+export function calculateMvpMultiStageRecommendations(scenario: RecommendationScenario) {
+  const plot = scenario.inputs.plot;
+  return cropRules.map((rule) => {
+    const crop: RecommendationCrop = { ...rule, id: rule.code };
+    const compatibility = rule.rotation[plot.previousCrop];
+    const rotation: RotationRule | undefined = compatibility === undefined ? undefined : {
+      nextCropCode: rule.code, compatibilityScore: compatibility, status: "ACCEPTABLE", explanationKey: "rotation.demo",
+    };
+    const evaluation = evaluateCrop(plot.bonitet, plot.waterSupply, crop, rotation);
+    const reasonKeys: ScenarioReasonKey[] = [];
+    if (evaluation.bonitetScore >= 80) reasonKeys.push("plot.bonitetSuitable");
+    if (evaluation.waterScore >= 80) reasonKeys.push("plot.waterSufficient");
+    if (evaluation.rotationScore !== null && evaluation.rotationScore >= 75) reasonKeys.push("plot.rotationSuitable");
+    return { cropCode: rule.code, score: evaluation.score, reasonKeys, eligible: evaluation.eligible,
+      exclusions: evaluation.exclusions, rotationScore: evaluation.rotationScore, missingRotation: evaluation.rotationScore === null, partialWater: evaluation.waterScore === 60 };
   });
 }

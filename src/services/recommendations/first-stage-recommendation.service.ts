@@ -7,12 +7,10 @@ import {
 } from "@/modules/recommendations/domain/first-stage-recommendation";
 import type { RecommendationRepository } from "@/modules/recommendations/domain/recommendation-repository";
 import {
-  calculateBonitetScore,
-  calculateFinalScore,
-  calculateWaterScore,
   getBonitetReasonKey,
   getWaterReasonKey,
 } from "@/modules/recommendations/domain/scoring";
+import { evaluateCrop } from "@/modules/recommendations/domain/eligibility";
 
 const PREVIOUS_CROP_CODES: Record<string, PreviousCropCode> = {
   WHEAT: "BUGDOY",
@@ -57,11 +55,10 @@ export class FirstStageRecommendationService {
     const waterSupply = plot.waterSupply as WaterLevel;
 
     const previousCrop = plot.previousCrop ? PREVIOUS_CROP_CODES[plot.previousCrop] : undefined;
-    if (!previousCrop) throw new FirstStageRecommendationError("MISSING_PREVIOUS_CROP");
 
     const [crops, rotationRules] = await Promise.all([
       this.recommendations.getActiveCrops(),
-      this.recommendations.getRotationRules(previousCrop),
+      previousCrop ? this.recommendations.getRotationRules(previousCrop) : Promise.resolve([]),
     ]);
     if (crops.length === 0) throw new FirstStageRecommendationError("NO_ACTIVE_CROPS");
 
@@ -70,20 +67,22 @@ export class FirstStageRecommendationService {
 
     const rankedItems = crops
       .map((crop) => {
-        const bonitetScore = calculateBonitetScore(bonitet, crop);
-        const waterScore = calculateWaterScore(waterSupply, crop.waterNeed);
         const rule = rulesByCrop.get(crop.code);
-        const rotationScore = rule?.compatibilityScore ?? 50;
+        const evaluation = evaluateCrop(bonitet, waterSupply, crop, rule);
+        const { bonitetScore, waterScore, rotationScore } = evaluation;
         const warningKeys = [
           ...(!rule ? ["rotation.insufficientData" as const] : []),
           ...(bonitet < crop.minBonitet ? ["bonitet.belowMinimum" as const] : []),
+          ...(waterScore === 60 ? ["water.partiallySufficient" as const] : []),
         ];
 
         return {
           cropId: crop.id,
           cropCode: crop.code,
           rank: 0,
-          finalScore: calculateFinalScore(bonitetScore, waterScore, rotationScore),
+          finalScore: evaluation.score,
+          eligible: evaluation.eligible,
+          exclusions: evaluation.exclusions,
           bonitetScore,
           waterScore,
           rotationScore,
@@ -102,13 +101,14 @@ export class FirstStageRecommendationService {
       .sort((left, right) => right.finalScore - left.finalScore || left.cropCode.localeCompare(right.cropCode))
       .map((item, index) => ({ ...item, rank: index + 1 }));
 
-    return this.recommendations.saveFirstStageCalculation({
+    const saved = await this.recommendations.saveFirstStageCalculation({
       plotId,
       bonitet,
       waterSupply,
-      previousCrop,
+      previousCrop: previousCrop ?? "BOSHQA",
       calculatedAt,
-      rankedItems,
+      rankedItems: rankedItems.filter((item) => item.eligible).map((item, index) => ({ ...item, rank: index + 1 })),
     });
+    return { ...saved, excluded: rankedItems.filter((item) => !item.eligible).map((item) => ({ cropCode: item.cropCode, reasons: item.exclusions })) };
   }
 }

@@ -74,7 +74,7 @@ export const postgisPlotWriteRepository: PlotWriteRepository = {
       const farm = await transaction.farm.upsert({
         where: { taxId: input.taxId },
         create: { taxId: input.taxId, name: input.farmName },
-        update: { name: input.farmName },
+        update: {},
         select: { id: true },
       });
 

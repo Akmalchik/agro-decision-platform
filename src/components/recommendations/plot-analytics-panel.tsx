@@ -15,10 +15,10 @@ export function PlotAnalyticsPanel({ analytics, locale, dictionary }: { analytic
   const messages = dictionary.plotAnalytics;
   const values = {
     bonitet: `${formatNumber(analytics.bonitet, intlLocales[locale])} ${dictionary.units.points}`,
-    water: messages.waterAssessments[analytics.waterAssessment],
+    water: dictionary.creation.waterOptions[analytics.waterAvailability],
     previousCrop: messages.previousCrops[analytics.previousCrop],
     area: `${formatNumber(analytics.plotArea, intlLocales[locale])} ${dictionary.units.hectare}`,
-    rotation: messages.rotationAssessments[analytics.rotationAssessment],
+    rotation: dictionary.empty.notSpecified,
   };
 
   return (

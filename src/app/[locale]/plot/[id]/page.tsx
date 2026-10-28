@@ -4,14 +4,14 @@ import { PlotDetails } from "@/components/plots/plot-details";
 import { PlotGeometryMapShell } from "@/components/plots/plot-geometry-map-shell";
 import { FirstStageRecommendations } from "@/components/recommendations/first-stage-recommendations";
 import { MultiStageRecommendations } from "@/components/recommendations/multi-stage-recommendations";
-import { AiConfidenceCard } from "@/components/recommendations/ai-confidence-card";
 import { DataState } from "@/components/ui/data-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { localePathSegments } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n";
 import { piskentMvpDistrictAnalyticsSource } from "@/modules/recommendations/data/piskent-mvp-district-analytics";
 import { piskentMvpPlotAnalyticsSource } from "@/modules/recommendations/data/piskent-mvp-plot-analytics";
-import { piskentMvpRecommendationConfidenceSource } from "@/modules/recommendations/data/piskent-mvp-recommendation-confidence";
+import { getPlanningMessages } from "@/i18n/planning";
+import { plotIdSchema } from "@/api/schemas/plot.schema";
 import { multiStageRecommendationService, plotService } from "@/services/composition-root";
 
 type PlotPageProps = { params: Promise<{ locale: string; id: string }> };
@@ -23,6 +23,8 @@ export default async function PlotPage({ params }: PlotPageProps) {
   const { locale: segment, id } = await params;
   const locale = getLocale(segment);
   const dictionary = getDictionary(locale);
+  const messages = getPlanningMessages(locale);
+  if (!plotIdSchema.safeParse(id).success) notFound();
   const mapHref = `/${localePathSegments[locale]}/map`;
   let plot;
   let geometry;
@@ -40,20 +42,27 @@ export default async function PlotPage({ params }: PlotPageProps) {
     );
   }
 
-  if (!plot || !geometry) notFound();
-  const multiStageRecommendation = multiStageRecommendationService.getForCadastralNumber(plot.cadastralNumber);
+  if (!plot) notFound();
+  const missingInputs = plot.soilProfile?.bonitet == null || !plot.waterSupply || !plot.previousCrop;
+  const multiStageRecommendation = multiStageRecommendationService.getForCadastralNumber(plot.cadastralNumber, missingInputs ? Number(plot.area) : undefined);
   const districtAnalytics = multiStageRecommendation
     ? multiStageRecommendation.recommendations
       .map((recommendation) => piskentMvpDistrictAnalyticsSource.findByCadastralAndCrop(plot.cadastralNumber, recommendation.cropCode))
       .filter((analytics) => analytics !== null)
     : [];
-  const plotAnalytics = piskentMvpPlotAnalyticsSource.findByCadastralNumber(plot.cadastralNumber);
-  const recommendationConfidence = piskentMvpRecommendationConfidenceSource.findByCadastralNumber(plot.cadastralNumber);
+  const plotAnalytics = multiStageRecommendation ? {
+    cadastralNumber: plot.cadastralNumber,
+    bonitet: multiStageRecommendation.inputs.plot.bonitet,
+    waterAvailability: multiStageRecommendation.inputs.plot.waterSupply,
+    previousCrop: multiStageRecommendation.inputs.plot.previousCrop,
+    plotArea: multiStageRecommendation.inputs.plot.officialAreaHectares,
+    waterAssessment: "MODERATE" as const, rotationAssessment: "NEUTRAL" as const,
+  } : piskentMvpPlotAnalyticsSource.findByCadastralNumber(plot.cadastralNumber);
 
   return (
     <div className="space-y-6">
       <PageHeader title={dictionary.plot.title} description={plot.farmName} />
-      <PlotGeometryMapShell details={geometry} dictionary={dictionary} />
+      {geometry ? <PlotGeometryMapShell details={geometry} dictionary={dictionary} /> : <p>{messages.noGeometry}</p>}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <PlotDetails
           locale={locale}
@@ -62,9 +71,7 @@ export default async function PlotPage({ params }: PlotPageProps) {
             cadastralNumber: plot.cadastralNumber,
             farmName: plot.farmName,
             area: plot.area,
-            bonitet: multiStageRecommendation
-              ? String(multiStageRecommendation.inputs.plot.bonitet)
-              : plot.soilProfile?.bonitet ?? null,
+            bonitet: plot.soilProfile?.bonitet ?? null,
             specialization: plot.specialization,
             taxId: plot.taxId,
             waterSupply: plot.waterSupply,
@@ -77,7 +84,7 @@ export default async function PlotPage({ params }: PlotPageProps) {
       </section>
       {multiStageRecommendation
         ? <>
-            {recommendationConfidence ? <AiConfidenceCard confidence={recommendationConfidence} dictionary={dictionary} /> : null}
+            <aside className="rounded-xl border border-amber-300 bg-amber-50 p-4"><strong>{messages.demo}</strong><p>{messages.provenance}</p></aside>
             <MultiStageRecommendations result={multiStageRecommendation} plotAnalytics={plotAnalytics} districtAnalytics={districtAnalytics} locale={locale} dictionary={dictionary} />
           </>
         : <FirstStageRecommendations plotId={id} locale={locale} dictionary={dictionary} />}

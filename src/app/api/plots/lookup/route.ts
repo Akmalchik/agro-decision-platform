@@ -4,6 +4,7 @@ import { plotLookupMethodSchema } from "@/api/schemas/plot.schema";
 import type { PlotLookupRecord } from "@/modules/plots/domain/plot-lookup-source";
 import { plotService } from "@/services/composition-root";
 import type { ApiResponse } from "@/types/api";
+import { apiError } from "@/api/http";
 
 export const runtime = "nodejs";
 
@@ -16,6 +17,8 @@ export async function GET(request: Request) {
     return NextResponse.json<ApiResponse<PlotLookupRecord | null>>({ error: { code: "INVALID_LOOKUP", message: "Invalid lookup query." } }, { status: 400 });
   }
 
-  const record = await plotService.lookup(parsed.data.method, parsed.data.value);
-  return NextResponse.json<ApiResponse<PlotLookupRecord | null>>({ data: record });
+  try {
+    const record = await plotService.lookup(parsed.data.method, parsed.data.value);
+    return NextResponse.json({ data: record, source: "DEMONSTRATION" });
+  } catch (error) { return apiError(error); }
 }

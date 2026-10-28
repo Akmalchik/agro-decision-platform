@@ -78,7 +78,7 @@ export const prismaRecommendationRepository: RecommendationRepository = {
           finalScore: item.finalScore,
           bonitetScore: item.bonitetScore,
           waterScore: item.waterScore,
-          rotationScore: item.rotationScore,
+          rotationScore: item.rotationScore ?? 0, // Missingness is retained as rotation.insufficientData; never used in ranking.
           status: item.status,
           reasonKeys: item.reasonKeys,
           warningKeys: item.warningKeys,

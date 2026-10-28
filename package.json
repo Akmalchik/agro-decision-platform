@@ -7,11 +7,13 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:recommendation": "node --import tsx scripts/test-first-stage-recommendation.ts",
+    "test:modernization": "node --import tsx scripts/test-modernization.ts",
+    "test": "npm run test:recommendation && npm run test:modernization",
     "postinstall": "prisma generate",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
@@ -50,5 +52,8 @@
     "tailwindcss": "^4.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.0"
   }
 }

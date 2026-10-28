@@ -10,6 +10,7 @@ import type { MultiStageRecommendationService } from "@/services/recommendations
 import { formatNumber } from "@/utils/format";
 import { DistrictAnalyticsPanel } from "@/components/recommendations/district-analytics-panel";
 import { PlotAnalyticsPanel } from "@/components/recommendations/plot-analytics-panel";
+import { getPlanningMessages } from "@/i18n/planning";
 
 type RecommendationResult = NonNullable<ReturnType<MultiStageRecommendationService["getForCadastralNumber"]>>;
 type RecommendationItem = RecommendationResult["recommendations"][number];
@@ -102,10 +103,10 @@ function ExplanationPanel({
             <h4 className="text-sm font-semibold text-slate-950">{messages.keyMetrics}</h4>
             <dl className="mt-3 space-y-2">
               <MetricRow label={plotMessages.labels.bonitet} value={`${formatNumber(plotAnalytics.bonitet, intlLocale)} ${dictionary.units.points}`} />
-              <MetricRow label={plotMessages.labels.water} value={plotMessages.waterAssessments[plotAnalytics.waterAssessment]} />
+              <MetricRow label={plotMessages.labels.water} value={dictionary.creation.waterOptions[plotAnalytics.waterAvailability]} />
               <MetricRow label={plotMessages.labels.previousCrop} value={plotMessages.previousCrops[plotAnalytics.previousCrop]} />
               <MetricRow label={plotMessages.labels.area} value={`${formatNumber(plotAnalytics.plotArea, intlLocale)} ${dictionary.units.hectare}`} />
-              <MetricRow label={plotMessages.labels.rotation} value={plotMessages.rotationAssessments[plotAnalytics.rotationAssessment]} />
+              <MetricRow label={plotMessages.labels.rotation} value={recommendation.missingRotation ? getPlanningMessages(locale).missingRotation : `${recommendation.rotationScore} / 100`} />
             </dl>
           </article>
         ) : null}
@@ -155,7 +156,8 @@ export function MultiStageRecommendations({
 }) {
   const messages = dictionary.multiStageRecommendation;
   const [selectedCrop, setSelectedCrop] = useState<CropCode>(result.recommendations[0]?.cropCode);
-  const stageProgress = result.stage === "FOURTH_STAGE" ? 100 : result.districtCropDistributionPercent ?? 0;
+  const stageProgress = result.districtCropDistributionPercent ?? 0;
+  const planningMessages = getPlanningMessages(locale);
   const stageProgressLabel = result.stage === "FOURTH_STAGE" ? messages.analysisCompleteness : messages.districtDistribution;
   const analyticsByCrop = useMemo(
     () => new Map(districtAnalytics.map((analytics) => [analytics.cropId, analytics])),
@@ -164,7 +166,7 @@ export function MultiStageRecommendations({
   const selectedRecommendation = result.recommendations.find((recommendation) => recommendation.cropCode === selectedCrop) ?? result.recommendations[0];
   const selectedDistrictAnalytics = selectedRecommendation ? analyticsByCrop.get(selectedRecommendation.cropCode) ?? null : null;
 
-  if (!selectedRecommendation) return null;
+  if (!selectedRecommendation) return <p className="rounded-xl bg-amber-50 p-4">{planningMessages.noEligible}</p>;
 
   return (
     <section className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50/80 shadow-sm" aria-labelledby="ai-recommendation-title">
@@ -182,10 +184,10 @@ export function MultiStageRecommendations({
               </span>
             </div>
           </div>
-          {result.stage !== "FIRST_STAGE" ? (
+          {result.districtCropDistributionPercent !== undefined ? (
             <div className="w-full shrink-0 rounded-2xl border border-blue-200 bg-blue-50/80 p-4 sm:w-60">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 text-sm font-medium leading-5 text-blue-900">{stageProgressLabel}</p>
+                <p className="min-w-0 text-sm font-medium leading-5 text-blue-900">{planningMessages.demo}: {stageProgressLabel}</p>
                 <p className="shrink-0 text-2xl font-semibold tabular-nums text-blue-950">{stageProgress}%</p>
               </div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-blue-100">
@@ -203,6 +205,9 @@ export function MultiStageRecommendations({
 
       <div className="p-4 sm:p-6 lg:p-8">
         <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-500">{messages.topThree}</h3>
+        <p className="mt-2 text-sm text-amber-900">{planningMessages.demo}</p>
+        <p className="mt-2 text-sm text-slate-600">{planningMessages.basis}</p>
+        {result.excluded.length > 0 ? <aside className="mt-3 rounded-lg bg-amber-50 p-3 text-sm"><strong>{planningMessages.excluded}</strong><ul>{result.excluded.map((item) => <li key={item.cropCode}>{dictionary.recommendation.cropNames[item.cropCode]}: {item.exclusions.map((reason) => reason === "water.insufficient" ? planningMessages.waterLow : reason === "bonitet.belowMinimum" ? planningMessages.below : planningMessages.rotationRestricted).join("; ")}</li>)}</ul></aside> : null}
         <div className="mt-4 grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {result.recommendations.map((recommendation) => {
             const cropName = dictionary.recommendation.cropNames[recommendation.cropCode];
@@ -225,6 +230,8 @@ export function MultiStageRecommendations({
                   <div className="shrink-0 text-right">
                     <strong className="block text-3xl font-semibold tabular-nums text-emerald-800">{recommendation.score}</strong>
                     <span className="text-xs font-medium text-slate-500">{messages.scoreUnit}</span>
+                    {recommendation.partialWater ? <p className="mt-2 text-xs text-amber-900">{planningMessages.waterPartial}</p> : null}
+                    {recommendation.missingRotation ? <p className="mt-2 text-xs text-amber-900">{planningMessages.missingRotation}</p> : null}
                   </div>
                 </div>
 

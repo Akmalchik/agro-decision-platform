@@ -1,5 +1,5 @@
 export const FIRST_STAGE = "FIRST_STAGE" as const;
-export const FIRST_STAGE_ALGORITHM_VERSION = "1.0.0" as const;
+export const FIRST_STAGE_ALGORITHM_VERSION = "2.0.0" as const;
 
 export type CropCode = "KARAM" | "MOSH" | "PIYOZ" | "KARTOSHKA" | "POMIDOR" | "SABZI" | "MAKKAJOXORI" | "LOVIYA";
 export type PreviousCropCode = "BUGDOY" | "PAXTA" | "MAKKAJOXORI" | "SHOLI" | "SABZAVOT" | "DUKKAKLI" | "BOSH" | "BOSHQA";
@@ -15,7 +15,7 @@ export type RecommendationReasonKey =
   | "water.insufficient"
   | `rotation.${string}`;
 
-export type RecommendationWarningKey = "rotation.insufficientData" | "bonitet.belowMinimum";
+export type RecommendationWarningKey = "rotation.insufficientData" | "bonitet.belowMinimum" | "water.partiallySufficient";
 
 export type RecommendationCrop = {
   id: string;
@@ -39,7 +39,7 @@ export type FirstStageRecommendationItem = {
   finalScore: number;
   bonitetScore: number;
   waterScore: number;
-  rotationScore: number;
+  rotationScore: number | null;
   status: RotationStatus;
   reasonKeys: RecommendationReasonKey[];
   warningKeys: RecommendationWarningKey[];
@@ -55,4 +55,5 @@ export type FirstStageRecommendationResult = {
   calculatedAt: string;
   algorithmVersion: typeof FIRST_STAGE_ALGORITHM_VERSION;
   items: FirstStageRecommendationItem[];
+  excluded?: Array<{ cropCode: CropCode; reasons: import("./eligibility").ExclusionReason[] }>;
 };

@@ -2,22 +2,19 @@ import { NextResponse } from "next/server";
 import { createPlotSchema } from "@/api/schemas/plot.schema";
 import { plotService } from "@/services/composition-root";
 import type { ApiResponse } from "@/types/api";
+import { apiError, readJson, requireWriter } from "@/api/http";
 
 export const runtime = "nodejs";
 
 type CreatePlotResponse = { id: string };
 
 export async function POST(request: Request) {
-  const parsed = createPlotSchema.safeParse(await request.json());
-  if (!parsed.success) {
-    return NextResponse.json<ApiResponse<CreatePlotResponse>>({ error: { code: "INVALID_INPUT", message: "Invalid plot data." } }, { status: 400 });
-  }
-
   try {
-    const id = await plotService.create(parsed.data);
+    requireWriter(request);
+    const input = await readJson(request, createPlotSchema);
+    const id = await plotService.create(input);
     return NextResponse.json<ApiResponse<CreatePlotResponse>>({ data: { id } }, { status: 201 });
   } catch (error) {
-    console.error("Unable to create plot.", error);
-    return NextResponse.json<ApiResponse<CreatePlotResponse>>({ error: { code: "CREATE_FAILED", message: "Unable to create plot." } }, { status: 500 });
+    return apiError(error);
   }
 }
