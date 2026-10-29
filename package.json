@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test:recommendation": "node --import tsx scripts/test-first-stage-recommendation.ts",
     "test:modernization": "node --import tsx scripts/test-modernization.ts",
-    "test": "npm run test:recommendation && npm run test:modernization && npm run test:presentation && npm run test:regional && npm run test:farmer-story && npm run test:farmer-stage-ui",
+    "test": "npm run test:recommendation && npm run test:modernization && npm run test:presentation && npm run test:regional && npm run test:farmer-story && npm run test:farmer-stage-ui && npm run test:evolving-scenario",
     "test:presentation": "node --import tsx scripts/test-presentation.ts",
     "postinstall": "prisma generate",
     "db:start": "docker compose up -d",
@@ -29,7 +29,8 @@
     "db:studio": "prisma studio",
     "test:regional": "node --import tsx scripts/test-regional.ts",
     "test:farmer-story": "node --import tsx scripts/test-farmer-story.ts",
-    "test:farmer-stage-ui": "node --import tsx scripts/test-farmer-stage-ui.ts"
+    "test:farmer-stage-ui": "node --import tsx scripts/test-farmer-stage-ui.ts",
+    "test:evolving-scenario": "node --import tsx scripts/test-evolving-scenario.ts"
   },
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.19.0",

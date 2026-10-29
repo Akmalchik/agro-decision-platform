@@ -64,7 +64,7 @@ async function main() {
     const response = await fetch(base + "/" + locale + page); assert.equal(response.status, 200);
     const html = await response.text();
     assert.ok(!html.includes(key), "Operator secret must never be serialized to public HTML");
-    if (page === "" || page === "/demo") { assert.ok(html.includes(page === "/demo" ? "farmer-story" : "Smart Ekin")); assert.ok(!html.includes('type="password"')); }
+    if (page === "" || page === "/demo") { assert.ok(html.includes(page === "/demo" ? "decision-surface" : "Smart Ekin")); assert.ok(!html.includes('type="password"')); }
   }
     for (const path of ["/toshkent", "/toshkent?district=PISKENT&product=KARTOSHKA", "/toshkent?district=toString"]) {
       const response = await fetch(base + path);
