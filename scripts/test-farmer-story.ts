@@ -1,0 +1,45 @@
+import assert from "node:assert/strict";
+import { FARMER_DEMO_STIR, findDemoFarm, farmerSuitability, farmerDistrictContext } from "../src/modules/presentation/farmer-story";
+import type { PresentationPlot } from "../src/modules/presentation/projection";
+import { piskentMvpRecommendationScenarioSource as scenarios } from "../src/modules/recommendations/data/piskent-mvp-recommendation-scenarios";
+import { projectStage } from "../src/modules/presentation/projection";
+import { getFarmerStoryMessages } from "../src/i18n/farmer-story";
+import { regionalDemoDistricts } from "../src/modules/regional/demo";
+
+const scenario=scenarios.findByCadastralNumber("11:10:000005739")!;
+const plot:PresentationPlot={id:"pilot-1",farmId:"farm-1",farmName:"Pilot farm",area:40.4,cadastralNumber:scenario.cadastralNumber,bounds:null,facts:{bonitet:null,waterSupply:null,previousCrop:null},scenario};
+const plots=[plot,{...plot,id:"pilot-2",area:90.04,cadastralNumber:"11:10:000234163"},{...plot,id:"other",farmId:"other",area:11}];
+const snapshot=JSON.stringify({plots,regionalDemoDistricts});
+const farm=findDemoFarm(plots,FARMER_DEMO_STIR)!;
+assert.equal(farm.name,"Pilot farm");
+assert.equal(farm.plots.length,2);
+assert.equal(farm.area,130.44);
+assert.equal(findDemoFarm(plots,"000000000"),null);
+assert.equal(findDemoFarm([],FARMER_DEMO_STIR),null);
+assert.equal(findDemoFarm(plots," 123456789 ")?.id,"farm-1");
+const suit=farmerSuitability(plot);
+assert.deepEqual(suit.top.map(row=>[row.cropCode,row.score]),projectStage(scenario,1).recommendations.map(row=>[row.cropCode,row.score]));
+const potato=[...suit.top,...suit.additional].find(row=>row.cropCode==="KARTOSHKA");
+assert.ok(potato,"Presentation potato must be available without inventing a top-three rank");
+const lowWater=farmerSuitability({...plot,scenario:{...scenario,inputs:{plot:{...scenario.inputs.plot,waterSupply:"LOW"}}}});
+assert.ok(lowWater.excluded.find(row=>row.cropCode==="KARTOSHKA")?.exclusions.includes("water.insufficient"));
+const context=farmerDistrictContext("KARTOSHKA");
+assert.equal(context.district.coverage,83);
+assert.equal(context.product?.balance,800);
+assert.equal(context.buka?.demand,7000);
+assert.equal(context.buka?.production,6300);
+assert.equal(context.deficit,700);
+assert.equal(context.option?.potentialTons,700);
+assert.equal(context.option?.proposedTons,null,"No allocated shipment without route evidence");
+assert.equal(context.option?.roadDistanceKm,null);
+assert.equal(context.option?.travelMinutes,null);
+assert.equal(farmerDistrictContext("MOSH").product,null);
+assert.equal(farmerDistrictContext("MOSH").buka,null);
+assert.equal(farmerDistrictContext("MOSH").option,null);
+assert.equal(JSON.stringify({plots,regionalDemoDistricts}),snapshot,"Lookup and story cannot mutate pilot or regional data");
+for(const locale of ["uz-Latn","uz-Cyrl","ru"] as const){
+  const messages=getFarmerStoryMessages(locale);
+  assert.equal(Object.keys(messages).length,Object.keys(getFarmerStoryMessages("uz-Latn")).length);
+  assert.ok(Object.values(messages).every(value=>value.length>0));
+}
+console.info("Farmer story passed: application-only STIR alias, pilot scope, actual engine ranks/exclusions, 83% DEMO, computed Buka deficit, no invented route/shipment, locale completeness and immutability.");
