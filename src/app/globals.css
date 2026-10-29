@@ -5,6 +5,7 @@
 @import "./regional.css";
 @import "./farmer-story.css";
 @import "./decision-surface.css";
+@import "./decision-polish.css";
 
 :root {
   --background: #f4f7f1;
@@ -113,3 +114,4 @@ a { color: inherit; text-decoration: none; }
     transition: none;
   }
 }
+
