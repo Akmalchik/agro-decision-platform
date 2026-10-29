@@ -24,7 +24,7 @@ export function DecisionSurface({data,locale,dictionary}:{data:PresentationData;
   const plot=data.plots.find(p=>p.id===plotId)??data.plots[0];
   const projection=plot?projectEvolution(plot,level):null;
   useEffect(()=>{if(dialogMode&&!dialog.current?.open)dialog.current?.showModal();else if(!dialogMode&&dialog.current?.open)dialog.current.close();},[dialogMode]);
-  const f=(value:number,precision=2)=>new Intl.NumberFormat(locale,{maximumFractionDigits:precision}).format(value);
+  const f=(value:number,precision=2)=>new Intl.NumberFormat(locale==="ru"||locale==="uz-Cyrl"?"ru-RU":"en-US",{maximumFractionDigits:precision}).format(value);
   const name=(row:Row)=>dictionary.recommendation.cropNames[row.code];
   const previous=(p:PresentationPlot)=>dictionary.plotAnalytics.previousCrops[p.scenario.inputs.plot.previousCrop];
   const risk=(row:Row)=>row.balance!==null&&row.balance>0;
